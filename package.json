@@ -1,0 +1,27 @@
+{
+  "name": "solana-dao-voting-dapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A decentralized governance application for Solana",
+  "scripts": {
+    "dev": "pnpm --filter dao-voting dev",
+    "build": "pnpm run build:anchor && pnpm run build:web",
+    "build:anchor": "cd programs/dao_program && anchor build",
+    "build:web": "pnpm --filter dao-voting build",
+    "test": "pnpm run test:anchor && pnpm run test:web",
+    "test:anchor": "cd programs/dao_program && anchor test",
+    "test:web": "pnpm --filter dao-voting test",
+    "deploy": "cd programs/dao_program && anchor deploy",
+    "seed": "pnpm tsx scripts/seed_initial_proposals.ts",
+    "clean": "pnpm -r run clean && rm -rf node_modules"
+  },
+  "keywords": ["solana", "dao", "voting", "governance", "web3"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "packageManager": "pnpm@10.7.1"
+}
