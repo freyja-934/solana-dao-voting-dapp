@@ -1,8 +1,8 @@
+@import '@solana/wallet-adapter-react-ui/styles.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import '~@solana/wallet-adapter-react-ui/styles.css';
 
 @layer base {
   :root {
@@ -53,9 +53,29 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  blockquote {
+    margin-top: 1.5rem;
+    border-left-width: 2px;
+    padding-left: 1.5rem;
+    font-style: italic;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  thead {
+    border-bottom-width: 1px;
+  }
+
+  tbody tr {
+    border-bottom-width: 1px;
   }
 }

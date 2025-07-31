@@ -6,7 +6,7 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { FC, ReactNode, useMemo } from 'react';
 
-require('@solana/wallet-adapter-react-ui/styles.css');
+// CSS styles are imported in globals.css
 
 interface Props {
   children: ReactNode;

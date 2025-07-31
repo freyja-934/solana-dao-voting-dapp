@@ -4,14 +4,17 @@
 seeds = false
 skip-lint = false
 
+[programs.devnet]
+dao_program = "HPH6itf3pTzFGReDBju8XhvQ8kgN1Wtpmd4oqXgaXKqp"
+
 [programs.localnet]
-dao_program = "5RzYB945gtiaM3k2WjiuhptSNQ8M3VmXQbBmJsSTCwC5"
+dao_program = "Aov7JqVe1igEQEYR7pKD4surZ6wLfb2uNmNurPxo1u9q"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "/Users/caseycharlesworth/.config/solana/id.json"
 
 [scripts]
