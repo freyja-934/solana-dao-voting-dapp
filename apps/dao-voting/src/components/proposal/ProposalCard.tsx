@@ -1,49 +1,49 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProposalAccount } from '@/lib/anchor-client';
-import { formatDate } from '@/utils/formatting';
 import Link from 'next/link';
-import { ProposalResults } from './ProposalResults';
 
 interface ProposalCardProps {
   proposal: ProposalAccount;
 }
 
-export const ProposalCard: React.FC<ProposalCardProps> = ({ proposal }) => {
-  const totalVotes = proposal.yesVotes.add(proposal.noVotes).add(proposal.abstainVotes);
-  const isActive = 'active' in proposal.status;
+export function ProposalCard({ proposal }: ProposalCardProps) {
+  const totalVotes = proposal.yesVotes + proposal.noVotes + proposal.abstainVotes;
+  const yesPercentage = totalVotes > 0 ? (proposal.yesVotes / totalVotes) * 100 : 0;
 
   return (
-    <div className="border rounded-lg p-6 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <h3 className="text-xl font-semibold mb-2">{proposal.title}</h3>
-          <p className="text-gray-600 line-clamp-2">{proposal.description}</p>
-        </div>
-        <div className={`px-3 py-1 rounded-full text-sm ${
-          isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-        }`}>
-          {isActive ? 'Active' : 'Finalized'}
-        </div>
-      </div>
-
-      <ProposalResults
-        yesVotes={proposal.yesVotes}
-        noVotes={proposal.noVotes}
-        abstainVotes={proposal.abstainVotes}
-      />
-
-      <div className="flex justify-between items-center mt-4">
-        <span className="text-sm text-gray-500">
-          Created {formatDate(proposal.createdAt)}
-        </span>
-        <Link href={`/proposal/${proposal.id.toString()}`}>
-          <Button variant="outline" size="sm">
-            View Details
-          </Button>
-        </Link>
-      </div>
-    </div>
+    <Link href={`/proposal/${proposal.id}`}>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-lg">{proposal.title}</CardTitle>
+            <Badge variant={proposal.status === 'active' ? 'default' : 'secondary'}>
+              {proposal.status === 'active' ? 'Active' : 'Finalized'}
+            </Badge>
+          </div>
+          <CardDescription className="line-clamp-2">
+            {proposal.description}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Total Votes: {totalVotes}</span>
+              <span>Yes: {yesPercentage.toFixed(1)}%</span>
+            </div>
+            <div className="flex gap-4 text-xs text-muted-foreground">
+              <span>Yes: {proposal.yesVotes}</span>
+              <span>No: {proposal.noVotes}</span>
+              <span>Abstain: {proposal.abstainVotes}</span>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Created: {new Date(proposal.createdAt * 1000).toLocaleDateString()}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
-};
+}

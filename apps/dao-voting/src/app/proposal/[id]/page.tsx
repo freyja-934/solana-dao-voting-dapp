@@ -1,53 +1,36 @@
 'use client';
 
 import { ProposalResults } from '@/components/proposal/ProposalResults';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { VoteButton } from '@/components/vote/VoteButton';
-import { useAnchorProvider } from '@/hooks/useAnchorProvider';
-import { fetchProposal, proposalQueries } from '@/queries/proposalQueries';
-import { formatAddress, formatDate } from '@/utils/formatting';
+import { fetchProposal, getConnection } from '@/lib/anchor-client';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 export default function ProposalDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const { connected } = useWallet();
-  const { program } = useAnchorProvider();
-  
+  const wallet = useWallet();
+  const connection = getConnection();
   const proposalId = parseInt(params.id as string);
 
   const { data: proposal, isLoading, error } = useQuery({
-    queryKey: proposalQueries.detail(proposalId, program),
-    queryFn: () => {
-      if (!program) throw new Error('Program not available');
-      return fetchProposal(program, proposalId);
-    },
-    enabled: !!program && !isNaN(proposalId),
+    queryKey: ['proposal', proposalId],
+    queryFn: () => fetchProposal(connection, proposalId),
+    enabled: !isNaN(proposalId),
   });
-
-  if (!connected) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <p className="text-xl text-gray-600 mb-4">
-            Connect your wallet to view proposal details
-          </p>
-          <Button onClick={() => router.push('/')}>
-            Back to Proposals
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <p className="text-gray-600">Loading proposal...</p>
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
+          </div>
         </div>
       </div>
     );
@@ -56,88 +39,97 @@ export default function ProposalDetailPage() {
   if (error || !proposal) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <p className="text-red-600 mb-4">Failed to load proposal</p>
-          <Button onClick={() => router.push('/')}>
-            Back to Proposals
-          </Button>
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Proposal Not Found</h1>
+          <p className="text-gray-600">The proposal you're looking for doesn't exist or couldn't be loaded.</p>
         </div>
       </div>
     );
   }
 
-  const isActive = 'active' in proposal.status;
+  const isActive = proposal.status === 'active';
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Button
-        variant="ghost"
-        className="mb-6"
-        onClick={() => router.push('/')}
-      >
-        ← Back to Proposals
-      </Button>
-
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <div className="flex justify-between items-start mb-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
             <h1 className="text-3xl font-bold">{proposal.title}</h1>
-            <div className={`px-3 py-1 rounded-full text-sm ${
-              isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-            }`}>
-              {isActive ? 'Active' : 'Finalized'}
-            </div>
+            <p className="text-muted-foreground mt-2">
+              Created on {new Date(proposal.createdAt * 1000).toLocaleDateString()}
+            </p>
           </div>
-
-          <div className="prose max-w-none mb-8">
-            <p className="text-gray-600 dark:text-gray-300">{proposal.description}</p>
-          </div>
-
-          <Separator className="my-6" />
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Proposal Information</h2>
-              <dl className="space-y-2">
-                <div>
-                  <dt className="text-sm text-gray-500">Proposal ID</dt>
-                  <dd className="font-medium">#{proposal.id.toString()}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">Created By</dt>
-                  <dd className="font-medium">{formatAddress(proposal.creator.toBase58())}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">Created At</dt>
-                  <dd className="font-medium">{formatDate(proposal.createdAt)}</dd>
-                </div>
-              </dl>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Voting Results</h2>
-              <ProposalResults
-                yesVotes={proposal.yesVotes}
-                noVotes={proposal.noVotes}
-                abstainVotes={proposal.abstainVotes}
-              />
-            </div>
-          </div>
-
-          {isActive && (
-            <>
-              <Separator className="my-6" />
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Cast Your Vote</h2>
-                <div className="flex gap-4">
-                  <VoteButton proposalId={proposalId} choice={{ yes: {} }} />
-                  <VoteButton proposalId={proposalId} choice={{ no: {} }} />
-                  <VoteButton proposalId={proposalId} choice={{ abstain: {} }} />
-                </div>
-              </div>
-            </>
-          )}
+          <Badge variant={isActive ? 'default' : 'secondary'}>
+            {isActive ? 'Active' : 'Finalized'}
+          </Badge>
         </div>
+
+        <Separator />
+
+        {/* Description */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Description</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground whitespace-pre-wrap">
+              {proposal.description}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Voting Results */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Voting Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProposalResults
+              yesVotes={proposal.yesVotes}
+              noVotes={proposal.noVotes}
+              abstainVotes={proposal.abstainVotes}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Voting Actions */}
+        {wallet.publicKey && isActive && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Cast Your Vote</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-4">
+                <VoteButton
+                  proposalId={proposal.id}
+                  choice="yes"
+                  className="flex-1"
+                />
+                <VoteButton
+                  proposalId={proposal.id}
+                  choice="no"
+                  className="flex-1"
+                />
+                <VoteButton
+                  proposalId={proposal.id}
+                  choice="abstain"
+                  className="flex-1"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {!wallet.publicKey && isActive && (
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">
+                Connect your wallet to vote on this proposal
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

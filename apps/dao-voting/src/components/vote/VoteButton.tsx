@@ -1,53 +1,66 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useVote, VoteChoice } from '@/hooks/useVote';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useVote } from '@/hooks/useVote';
+import { cn } from '@/lib/utils';
+import { useCallback } from 'react';
 
 interface VoteButtonProps {
   proposalId: number;
-  choice: VoteChoice;
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  choice: 'yes' | 'no' | 'abstain';
   disabled?: boolean;
+  className?: string;
 }
 
-export const VoteButton: React.FC<VoteButtonProps> = ({
-  proposalId,
-  choice,
-  variant = 'default',
-  disabled = false,
-}) => {
-  const { connected } = useWallet();
-  const vote = useVote();
+export function VoteButton({ proposalId, choice, disabled, className }: VoteButtonProps) {
+  const { mutate: vote, isPending, isError, error } = useVote();
 
-  const getLabel = () => {
-    if ('yes' in choice) return 'Yes';
-    if ('no' in choice) return 'No';
-    return 'Abstain';
+  const handleVote = useCallback(() => {
+    vote({ proposalId, choice }, {
+      onError: (error) => {
+        console.error('Vote error:', error);
+        // The error will be displayed by the mutation state
+      }
+    });
+  }, [vote, proposalId, choice]);
+
+  const getButtonText = () => {
+    if (isPending) return 'Voting...';
+    
+    if (isError && error?.message?.includes('already voted')) {
+      return 'Already Voted';
+    }
+    
+    switch (choice) {
+      case 'yes':
+        return 'Vote Yes';
+      case 'no':
+        return 'Vote No';
+      case 'abstain':
+        return 'Abstain';
+    }
   };
 
-  const getVariant = () => {
-    if (variant) return variant;
-    if ('yes' in choice) return 'default';
-    if ('no' in choice) return 'destructive';
-    return 'outline';
-  };
-
-  const handleVote = async () => {
-    try {
-      await vote.mutateAsync({ proposalId, choice });
-    } catch (error) {
-      console.error('Failed to cast vote:', error);
+  const getButtonVariant = () => {
+    switch (choice) {
+      case 'yes':
+        return 'default';
+      case 'no':
+        return 'destructive';
+      case 'abstain':
+        return 'outline';
     }
   };
 
   return (
     <Button
       onClick={handleVote}
-      disabled={!connected || vote.isPending || disabled}
-      variant={getVariant()}
+      disabled={disabled || isPending || (isError && error?.message?.includes('already voted'))}
+      variant={getButtonVariant() as any}
+      className={cn(className)}
+      title={isError ? error?.message : undefined}
     >
-      {vote.isPending ? 'Voting...' : getLabel()}
+      {getButtonText()}
     </Button>
   );
-};
+}

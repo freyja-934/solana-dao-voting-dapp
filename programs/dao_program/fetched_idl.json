@@ -1,0 +1,383 @@
+{
+  "version": "0.1.0",
+  "name": "dao_program",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "daoState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "daoName",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "createProposal",
+      "accounts": [
+        {
+          "name": "daoState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "proposal",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "castVote",
+      "accounts": [
+        {
+          "name": "proposal",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "voteRecord",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "voter",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "voteChoice",
+          "type": {
+            "defined": "VoteChoice"
+          }
+        }
+      ]
+    },
+    {
+      "name": "finalizeProposal",
+      "accounts": [
+        {
+          "name": "daoState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "proposal",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "DaoState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "daoName",
+            "type": "string"
+          },
+          {
+            "name": "proposalCount",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Proposal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "yesVotes",
+            "type": "u64"
+          },
+          {
+            "name": "noVotes",
+            "type": "u64"
+          },
+          {
+            "name": "abstainVotes",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "ProposalStatus"
+            }
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VoteRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "voter",
+            "type": "publicKey"
+          },
+          {
+            "name": "proposalId",
+            "type": "u64"
+          },
+          {
+            "name": "choice",
+            "type": {
+              "defined": "VoteChoice"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "ProposalStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Finalized"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VoteChoice",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Yes"
+          },
+          {
+            "name": "No"
+          },
+          {
+            "name": "Abstain"
+          }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "DaoInitialized",
+      "fields": [
+        {
+          "name": "authority",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "daoName",
+          "type": "string",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "ProposalCreated",
+      "fields": [
+        {
+          "name": "proposalId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "creator",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "index": false
+        },
+        {
+          "name": "createdAt",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "VoteCast",
+      "fields": [
+        {
+          "name": "proposalId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "voter",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "choice",
+          "type": {
+            "defined": "VoteChoice"
+          },
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "ProposalFinalized",
+      "fields": [
+        {
+          "name": "proposalId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "status",
+          "type": {
+            "defined": "ProposalStatus"
+          },
+          "index": false
+        },
+        {
+          "name": "totalVotes",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "passed",
+          "type": "bool",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NameTooLong",
+      "msg": "DAO name must be 50 characters or less"
+    },
+    {
+      "code": 6001,
+      "name": "TitleTooLong",
+      "msg": "Proposal title must be 100 characters or less"
+    },
+    {
+      "code": 6002,
+      "name": "DescriptionTooLong",
+      "msg": "Proposal description must be 500 characters or less"
+    },
+    {
+      "code": 6003,
+      "name": "ProposalNotActive",
+      "msg": "Proposal is not active"
+    },
+    {
+      "code": 6004,
+      "name": "Unauthorized",
+      "msg": "Unauthorized action"
+    }
+  ]
+}

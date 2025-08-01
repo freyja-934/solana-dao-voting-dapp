@@ -14,7 +14,7 @@ export default function Home() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-4xl font-bold mb-2">DAO Proposals</h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Vote on community proposals to shape the future of our DAO
           </p>
         </div>
@@ -23,7 +23,7 @@ export default function Home() {
 
       {!connected && (
         <div className="text-center py-12">
-          <p className="text-xl text-gray-600 mb-4">
+          <p className="text-xl text-muted-foreground mb-4">
             Connect your wallet to view and create proposals
           </p>
         </div>
@@ -31,19 +31,19 @@ export default function Home() {
 
       {connected && isLoading && (
         <div className="text-center py-12">
-          <p className="text-gray-600">Loading proposals...</p>
+          <p className="text-muted-foreground">Loading proposals...</p>
         </div>
       )}
 
       {connected && error && (
         <div className="text-center py-12">
-          <p className="text-red-600">Failed to load proposals. Please try again later.</p>
+          <p className="text-destructive">Failed to load proposals. Please try again later.</p>
         </div>
       )}
 
       {connected && proposals && proposals.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-600 mb-4">No proposals yet. Be the first to create one!</p>
+          <p className="text-muted-foreground mb-4">No proposals yet. Be the first to create one!</p>
         </div>
       )}
 
