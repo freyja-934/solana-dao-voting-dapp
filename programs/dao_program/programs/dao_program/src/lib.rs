@@ -24,15 +24,16 @@ pub mod dao_program {
     }
 
     pub fn create_proposal(
-        ctx: Context<CreateProposal>,
-        title: String,
+        ctx: Context<CreateProposal>, 
+        title: String, 
         description: String,
+        voting_duration: i64,  // Duration in seconds
     ) -> Result<()> {
-        require!(title.len() <= 100, ErrorCode::TitleTooLong);
-        require!(description.len() <= 500, ErrorCode::DescriptionTooLong);
-        
         let dao_state = &mut ctx.accounts.dao_state;
         let proposal = &mut ctx.accounts.proposal;
+        
+        let clock = Clock::get()?;
+        let current_timestamp = clock.unix_timestamp;
         
         proposal.id = dao_state.proposal_count;
         proposal.creator = ctx.accounts.creator.key();
@@ -42,10 +43,11 @@ pub mod dao_program {
         proposal.no_votes = 0;
         proposal.abstain_votes = 0;
         proposal.status = ProposalStatus::Active;
-        proposal.created_at = Clock::get()?.unix_timestamp;
+        proposal.created_at = current_timestamp;
+        proposal.expires_at = current_timestamp + voting_duration;  // Set expiration
         proposal.bump = ctx.bumps.proposal;
         
-        dao_state.proposal_count += 1;
+        dao_state.proposal_count = dao_state.proposal_count.checked_add(1).unwrap();
         
         emit!(ProposalCreated {
             proposal_id: proposal.id,
@@ -66,17 +68,25 @@ pub mod dao_program {
             ErrorCode::ProposalNotActive
         );
         
-        vote_record.voter = ctx.accounts.voter.key();
-        vote_record.proposal_id = proposal.id;
-        vote_record.choice = vote_choice.clone();
-        vote_record.timestamp = Clock::get()?.unix_timestamp;
-        vote_record.bump = ctx.bumps.vote_record;
+        // Check if proposal has expired
+        let clock = Clock::get()?;
+        let current_timestamp = clock.unix_timestamp;
+        require!(
+            current_timestamp <= proposal.expires_at,
+            ErrorCode::ProposalExpired
+        );
         
         match vote_choice {
             VoteChoice::Yes => proposal.yes_votes += 1,
             VoteChoice::No => proposal.no_votes += 1,
             VoteChoice::Abstain => proposal.abstain_votes += 1,
         }
+        
+        vote_record.voter = ctx.accounts.voter.key();
+        vote_record.proposal_id = proposal.id;
+        vote_record.choice = vote_choice.clone();
+        vote_record.timestamp = current_timestamp;
+        vote_record.bump = ctx.bumps.vote_record;
         
         emit!(VoteCast {
             proposal_id: proposal.id,
@@ -215,6 +225,7 @@ pub struct Proposal {
     pub abstain_votes: u64,
     pub status: ProposalStatus,
     pub created_at: i64,
+    pub expires_at: i64,  // New field: Unix timestamp when voting expires
     pub bump: u8,
 }
 
@@ -281,6 +292,8 @@ pub enum ErrorCode {
     DescriptionTooLong,
     #[msg("Proposal is not active")]
     ProposalNotActive,
+    #[msg("Proposal has expired")]
+    ProposalExpired,
     #[msg("Unauthorized action")]
     Unauthorized,
 }

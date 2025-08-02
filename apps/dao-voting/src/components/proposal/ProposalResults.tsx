@@ -1,67 +1,73 @@
 'use client';
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProposalAccount } from '@/lib/anchor-client';
+import { calculateVotePercentage } from '@/utils/formatting';
+
 interface ProposalResultsProps {
-  yesVotes: number;
-  noVotes: number;
-  abstainVotes: number;
+  proposal: ProposalAccount;
 }
 
-export function ProposalResults({ yesVotes, noVotes, abstainVotes }: ProposalResultsProps) {
+export function ProposalResults({ proposal }: ProposalResultsProps) {
+  const { yesVotes, noVotes, abstainVotes } = proposal;
   const totalVotes = yesVotes + noVotes + abstainVotes;
   
-  const yesPercentage = totalVotes > 0 ? (yesVotes / totalVotes) * 100 : 0;
-  const noPercentage = totalVotes > 0 ? (noVotes / totalVotes) * 100 : 0;
-  const abstainPercentage = totalVotes > 0 ? (abstainVotes / totalVotes) * 100 : 0;
+  const yesPercentage = calculateVotePercentage(yesVotes, totalVotes);
+  const noPercentage = calculateVotePercentage(noVotes, totalVotes);
+  const abstainPercentage = calculateVotePercentage(abstainVotes, totalVotes);
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between text-sm font-medium">
-        <span>Total Votes: {totalVotes}</span>
-      </div>
-      
-      <div className="space-y-3">
-        {/* Yes votes */}
-        <div>
-          <div className="flex justify-between text-sm mb-1">
-            <span className="text-green-600">Yes</span>
-            <span>{yesVotes} ({yesPercentage.toFixed(1)}%)</span>
+    <Card>
+      <CardHeader>
+        <CardTitle>Voting Results</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-green-600 font-medium">Yes</span>
+            <span className="text-muted-foreground">{yesVotes} votes ({yesPercentage}%)</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+          <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="bg-green-600 h-2 rounded-full transition-all"
               style={{ width: `${yesPercentage}%` }}
             />
           </div>
         </div>
 
-        {/* No votes */}
-        <div>
-          <div className="flex justify-between text-sm mb-1">
-            <span className="text-red-600">No</span>
-            <span>{noVotes} ({noPercentage.toFixed(1)}%)</span>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-red-600 font-medium">No</span>
+            <span className="text-muted-foreground">{noVotes} votes ({noPercentage}%)</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-red-500 h-2 rounded-full transition-all duration-300"
+          <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="bg-red-600 h-2 rounded-full transition-all"
               style={{ width: `${noPercentage}%` }}
             />
           </div>
         </div>
 
-        {/* Abstain votes */}
-        <div>
-          <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-600">Abstain</span>
-            <span>{abstainVotes} ({abstainPercentage.toFixed(1)}%)</span>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600 font-medium">Abstain</span>
+            <span className="text-muted-foreground">{abstainVotes} votes ({abstainPercentage}%)</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gray-500 h-2 rounded-full transition-all duration-300"
+          <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="bg-gray-600 h-2 rounded-full transition-all"
               style={{ width: `${abstainPercentage}%` }}
             />
           </div>
         </div>
-      </div>
-    </div>
+
+        <div className="pt-4 border-t">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">Total Votes</span>
+            <span className="text-muted-foreground">{totalVotes}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

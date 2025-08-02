@@ -29,6 +29,7 @@ export interface ProposalAccount {
   abstainVotes: number;
   status: 'active' | 'finalized';
   createdAt: number;
+  expiresAt: number;  // New field
   bump: number;
 }
 
@@ -122,24 +123,29 @@ export function createProposalInstruction(
   proposalPda: PublicKey,
   creator: PublicKey,
   title: string,
-  description: string
+  description: string,
+  votingDuration: number  // Duration in seconds
 ): TransactionInstruction {
-  const titleBuffer = Buffer.from(title, 'utf8');
-  const descriptionBuffer = Buffer.from(description, 'utf8');
+  const titleBuffer = Buffer.from(title);
+  const descriptionBuffer = Buffer.from(description);
   
-  // Use proper Anchor string serialization (4-byte length prefix)
   const titleLengthBuffer = Buffer.alloc(4);
   titleLengthBuffer.writeUInt32LE(titleBuffer.length, 0);
   
   const descriptionLengthBuffer = Buffer.alloc(4);
   descriptionLengthBuffer.writeUInt32LE(descriptionBuffer.length, 0);
   
+  const votingDurationBuffer = Buffer.alloc(8);
+  const view = new DataView(votingDurationBuffer.buffer, votingDurationBuffer.byteOffset, votingDurationBuffer.byteLength);
+  view.setBigInt64(0, BigInt(votingDuration), true); // true for little-endian
+  
   const data = Buffer.concat([
     INSTRUCTION_DISCRIMINATORS.createProposal,
     titleLengthBuffer,
     titleBuffer,
     descriptionLengthBuffer,
-    descriptionBuffer
+    descriptionBuffer,
+    votingDurationBuffer  // Add voting duration to instruction data
   ]);
 
   return new TransactionInstruction({
@@ -352,6 +358,10 @@ export async function fetchProposal(connection: Connection, proposalId: number):
     const createdAt = Number(view.getBigUint64(0, true));
     offset += 8;
     
+    view = new DataView(data.buffer, data.byteOffset + offset, 8);
+    const expiresAt = Number(view.getBigUint64(0, true));
+    offset += 8;
+    
     const bump = data.readUInt8(offset);
 
     return {
@@ -364,6 +374,7 @@ export async function fetchProposal(connection: Connection, proposalId: number):
       abstainVotes,
       status,
       createdAt,
+      expiresAt,
       bump,
     };
   } catch (error) {

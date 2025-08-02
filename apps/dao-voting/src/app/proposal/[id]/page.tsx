@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { VoteButton } from '@/components/vote/VoteButton';
 import { fetchProposal, getConnection } from '@/lib/anchor-client';
+import { formatDateTime, formatTimeRemaining, isProposalExpired } from '@/utils/formatting';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useQuery } from '@tanstack/react-query';
+import { Calendar, Clock } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 export default function ProposalDetailPage() {
@@ -48,53 +50,61 @@ export default function ProposalDetailPage() {
   }
 
   const isActive = proposal.status === 'active';
+  const expired = isActive && isProposalExpired(proposal.expiresAt);
+  const canVote = isActive && !expired;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">{proposal.title}</h1>
-            <p className="text-muted-foreground mt-2">
-              Created on {new Date(proposal.createdAt * 1000).toLocaleDateString()}
-            </p>
-          </div>
-          <Badge variant={isActive ? 'default' : 'secondary'}>
-            {isActive ? 'Active' : 'Finalized'}
-          </Badge>
-        </div>
-
-        <Separator />
-
-        {/* Description */}
+        {/* Header Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Description</CardTitle>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-3xl">{proposal.title}</CardTitle>
+                <p className="text-muted-foreground mt-2">
+                  Proposal #{proposal.id} • Created by {proposal.creator.toBase58().slice(0, 8)}...
+                </p>
+              </div>
+              <Badge
+                variant={
+                  !isActive ? 'secondary' : 
+                  expired ? 'destructive' : 
+                  'default'
+                }
+                className="text-sm"
+              >
+                {!isActive ? 'Finalized' : expired ? 'Expired' : 'Active'}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground whitespace-pre-wrap">
-              {proposal.description}
-            </p>
+            <p className="text-lg leading-relaxed">{proposal.description}</p>
+            <Separator className="my-6" />
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>Created: {formatDateTime(proposal.createdAt)}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                {canVote ? (
+                  <span className="text-primary font-medium">
+                    {formatTimeRemaining(proposal.expiresAt)}
+                  </span>
+                ) : (
+                  <span>Ended: {formatDateTime(proposal.expiresAt)}</span>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Voting Results */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Voting Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProposalResults
-              yesVotes={proposal.yesVotes}
-              noVotes={proposal.noVotes}
-              abstainVotes={proposal.abstainVotes}
-            />
-          </CardContent>
-        </Card>
+        {/* Results Card */}
+        <ProposalResults proposal={proposal} />
 
         {/* Voting Actions */}
-        {wallet.publicKey && isActive && (
+        {wallet.publicKey && canVote && (
           <Card>
             <CardHeader>
               <CardTitle>Cast Your Vote</CardTitle>
@@ -121,11 +131,21 @@ export default function ProposalDetailPage() {
           </Card>
         )}
 
-        {!wallet.publicKey && isActive && (
+        {!wallet.publicKey && canVote && (
           <Card>
             <CardContent className="pt-6">
               <p className="text-center text-muted-foreground">
                 Connect your wallet to vote on this proposal
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {expired && (
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">
+                Voting has ended for this proposal
               </p>
             </CardContent>
           </Card>

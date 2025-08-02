@@ -12,6 +12,7 @@ import { useAnchorProvider } from './useAnchorProvider';
 interface CreateProposalParams {
   title: string;
   description: string;
+  votingDuration: number; // Duration in seconds
 }
 
 export function useCreateProposal() {
@@ -49,7 +50,8 @@ export function useCreateProposal() {
         proposalPda,
         wallet.publicKey,
         params.title,
-        params.description
+        params.description,
+        params.votingDuration
       );
 
       console.log('Creating transaction with instruction');

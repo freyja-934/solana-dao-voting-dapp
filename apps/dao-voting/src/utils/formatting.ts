@@ -1,16 +1,41 @@
 import { BN } from '@coral-xyz/anchor';
 
-export function formatDate(timestamp: BN | number): string {
-  const date = new Date(
-    typeof timestamp === 'number' ? timestamp * 1000 : timestamp.toNumber() * 1000
-  );
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+export function formatAddress(address: string): string {
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+export function formatDate(timestamp: number): string {
+  return new Date(timestamp * 1000).toLocaleDateString();
+}
+
+export function formatDateTime(timestamp: number): string {
+  return new Date(timestamp * 1000).toLocaleString();
+}
+
+export function isProposalExpired(expiresAt: number): boolean {
+  const now = Math.floor(Date.now() / 1000); // Current time in seconds
+  return now > expiresAt;
+}
+
+export function formatTimeRemaining(expiresAt: number): string {
+  const now = Math.floor(Date.now() / 1000);
+  const remaining = expiresAt - now;
+  
+  if (remaining <= 0) {
+    return 'Expired';
+  }
+  
+  const days = Math.floor(remaining / (24 * 60 * 60));
+  const hours = Math.floor((remaining % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((remaining % (60 * 60)) / 60);
+  
+  if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''} ${hours}h remaining`;
+  } else if (hours > 0) {
+    return `${hours}h ${minutes}m remaining`;
+  } else {
+    return `${minutes}m remaining`;
+  }
 }
 
 export function calculateVotePercentage(
@@ -22,8 +47,4 @@ export function calculateVotePercentage(
   
   if (totalNum === 0) return 0;
   return Math.round((votesNum / totalNum) * 100);
-}
-
-export function formatAddress(address: string, chars = 4): string {
-  return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 }

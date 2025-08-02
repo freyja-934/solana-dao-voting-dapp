@@ -14,84 +14,105 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateProposal } from '@/hooks/useCreateProposal';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { useState } from 'react';
 
-export const CreateProposalModal = () => {
+export function CreateProposalModal() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  
-  const { connected } = useWallet();
-  const createProposal = useCreateProposal();
+  const [votingDays, setVotingDays] = useState(7); // Default 7 days
+  const { mutate: createProposal, isPending } = useCreateProposal();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !description) return;
-
-    try {
-      await createProposal.mutateAsync({ title, description });
-      setOpen(false);
-      setTitle('');
-      setDescription('');
-    } catch (error) {
-      console.error('Failed to create proposal:', error);
-    }
+    
+    const votingDuration = votingDays * 24 * 60 * 60; // Convert days to seconds
+    
+    createProposal(
+      { title, description, votingDuration },
+      {
+        onSuccess: () => {
+          setTitle('');
+          setDescription('');
+          setVotingDays(7);
+          setOpen(false);
+        },
+        onError: (error) => {
+          console.error('Failed to create proposal:', error);
+        },
+      }
+    );
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={!connected}>
-          Create Proposal
-        </Button>
+        <Button>Create Proposal</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create New Proposal</DialogTitle>
             <DialogDescription>
-              Submit a new proposal for the DAO to vote on. All members can participate in the voting process.
+              Submit a new proposal for the community to vote on.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="title" className="text-right">
+                Title
+              </Label>
               <Input
                 id="title"
-                placeholder="Enter proposal title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                maxLength={100}
+                className="col-span-3"
+                placeholder="Enter proposal title"
                 required
+                maxLength={100}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
               <Textarea
                 id="description"
-                placeholder="Describe your proposal in detail"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                maxLength={500}
+                className="col-span-3"
+                placeholder="Describe your proposal"
                 required
+                maxLength={500}
                 rows={4}
               />
-              <span className="text-sm text-muted-foreground">
-                {description.length}/500 characters
-              </span>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="votingDays" className="text-right">
+                Voting Period
+              </Label>
+              <div className="col-span-3 flex items-center gap-2">
+                <Input
+                  id="votingDays"
+                  type="number"
+                  value={votingDays}
+                  onChange={(e) => setVotingDays(parseInt(e.target.value) || 1)}
+                  className="w-24"
+                  min={1}
+                  max={30}
+                  required
+                />
+                <span className="text-sm text-muted-foreground">days</span>
+              </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createProposal.isPending || !title || !description}>
-              {createProposal.isPending ? 'Creating...' : 'Create Proposal'}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? 'Creating...' : 'Create Proposal'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
-};
+}

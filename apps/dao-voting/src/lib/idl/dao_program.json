@@ -60,6 +60,10 @@
         {
           "name": "description",
           "type": "string"
+        },
+        {
+          "name": "votingDuration",
+          "type": "i64"
         }
       ]
     },
@@ -184,6 +188,10 @@
           },
           {
             "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "expiresAt",
             "type": "i64"
           },
           {
@@ -376,6 +384,11 @@
     },
     {
       "code": 6004,
+      "name": "ProposalExpired",
+      "msg": "Proposal has expired"
+    },
+    {
+      "code": 6005,
       "name": "Unauthorized",
       "msg": "Unauthorized action"
     }
