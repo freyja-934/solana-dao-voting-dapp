@@ -1,6 +1,5 @@
 'use client';
 
-import { TestSupabase } from '@/components/debug/TestSupabase';
 import { CreateProposalModal } from '@/components/proposal/CreateProposalModal';
 import { ProposalCard } from '@/components/proposal/ProposalCard';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -84,8 +83,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Temporary debug component */}
-      <TestSupabase />
     </div>
   );
 }
