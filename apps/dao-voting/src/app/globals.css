@@ -84,6 +84,38 @@ body {
   color: hsl(var(--foreground));
 }
 
+/* Cursor pointer styles */
+/* Ensure all links have cursor pointer */
+a {
+  cursor: pointer;
+}
+
+/* Ensure all buttons have cursor pointer */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Interactive elements should have cursor pointer */
+[role="button"]:not([aria-disabled="true"]),
+[role="link"],
+[role="menuitem"],
+[role="tab"],
+[role="checkbox"],
+[role="radio"],
+[role="switch"],
+[onclick]:not(:disabled),
+[data-state]:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Disabled elements should not have cursor pointer */
+[disabled],
+[aria-disabled="true"],
+.disabled,
+.pointer-events-none {
+  cursor: default !important;
+}
+
 blockquote {
   margin-top: 1.5rem;
   border-left-width: 2px;
