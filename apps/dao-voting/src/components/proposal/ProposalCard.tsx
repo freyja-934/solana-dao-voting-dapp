@@ -4,7 +4,7 @@ import { UserAvatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ProposalAccount } from '@/lib/anchor-client';
-import { formatDate, formatTimeRemaining, isProposalExpired } from '@/utils/formatting';
+import { formatTimeRemaining, isProposalExpired } from '@/utils/formatting';
 import { Clock } from 'lucide-react';
 import Link from 'next/link';
 
@@ -48,37 +48,46 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
   };
 
   return (
-    <Link href={`/proposal/${proposal.id}`}>
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-            <h3 className="text-lg sm:text-xl font-semibold line-clamp-2 flex-1">{title}</h3>
-            <div className="flex flex-wrap gap-1 items-start">
-              <Badge variant={getBadgeVariant()}>
-                {getStatusLabel()}
-              </Badge>
-              {expiringSoon && (
-                <Badge variant="destructive" className="animate-pulse">
-                  <Clock className="h-3 w-3 mr-1" />
-                  <span className="text-xs">Expiring Soon</span>
+    <Link href={`/proposal/${proposal.id}`} className="block">
+      <Card className="h-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+        <CardHeader className="pb-3">
+          <div className="space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="text-lg font-semibold line-clamp-2 flex-1">
+                {title}
+              </h3>
+              <div className="flex flex-col gap-1 items-end">
+                <Badge variant={getBadgeVariant()}>
+                  {getStatusLabel()}
                 </Badge>
-              )}
+                {expiringSoon && (
+                  <Badge variant="destructive" className="animate-pulse">
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span className="text-xs">Expiring Soon</span>
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 mb-4">{description}</p>
-          <div className="space-y-2">
+        
+        <CardContent className="pb-4">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+            {description}
+          </p>
+          
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <UserAvatar address={creatorAddress} size="xs" />
-              <span className="text-xs sm:text-sm text-muted-foreground truncate">
+              <span className="truncate max-w-[100px]">
                 {creatorAddress.slice(0, 4)}...{creatorAddress.slice(-4)}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-              <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+            
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
               {expired ? (
-                <span>Ended {formatDate(proposal.expiresAt)}</span>
+                <span>Ended</span>
               ) : (
                 <span className={expiringSoon ? "text-destructive font-medium" : ""}>
                   {formatTimeRemaining(proposal.expiresAt)}
@@ -87,23 +96,31 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
             </div>
           </div>
         </CardContent>
-        <CardFooter>
-          <div className="grid grid-cols-3 gap-2 w-full text-xs sm:text-sm">
-            <div className="text-center">
-              <span className="font-medium text-green-600 block">{yesVotes}</span>
-              <span className="text-muted-foreground">Yes</span>
+        
+        <CardFooter className="pt-0 pb-4">
+          <div className="w-full space-y-2">
+            {/* Vote Counts */}
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div>
+                <p className="text-lg font-semibold text-green-600">{yesVotes}</p>
+                <p className="text-xs text-muted-foreground">Yes</p>
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-red-600">{noVotes}</p>
+                <p className="text-xs text-muted-foreground">No</p>
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-gray-600">{abstainVotes}</p>
+                <p className="text-xs text-muted-foreground">Abstain</p>
+              </div>
             </div>
-            <div className="text-center">
-              <span className="font-medium text-red-600 block">{noVotes}</span>
-              <span className="text-muted-foreground">No</span>
+            
+            {/* Total Votes */}
+            <div className="text-center pt-2 border-t">
+              <p className="text-xs text-muted-foreground">
+                {totalVotes} total {totalVotes === 1 ? 'vote' : 'votes'}
+              </p>
             </div>
-            <div className="text-center">
-              <span className="font-medium text-gray-600 block">{abstainVotes}</span>
-              <span className="text-muted-foreground">Abstain</span>
-            </div>
-          </div>
-          <div className="text-xs sm:text-sm text-muted-foreground text-center mt-2 pt-2 border-t w-full">
-            {totalVotes} total {totalVotes === 1 ? 'vote' : 'votes'}
           </div>
         </CardFooter>
       </Card>
