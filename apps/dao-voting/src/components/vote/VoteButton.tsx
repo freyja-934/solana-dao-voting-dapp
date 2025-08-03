@@ -1,10 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { SuccessDialog } from '@/components/ui/success-dialog';
 import { useVote } from '@/hooks/useVote';
 import { cn } from '@/lib/utils';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
 
 interface VoteButtonProps {
   proposalId: number;
@@ -15,16 +15,26 @@ interface VoteButtonProps {
 
 export function VoteButton({ proposalId, choice, disabled, className }: VoteButtonProps) {
   const { mutate: vote, isPending, isError, error } = useVote();
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleVote = useCallback(() => {
     vote({ proposalId, choice }, {
       onSuccess: () => {
-        setShowSuccess(true);
+        const messages = {
+          yes: 'You voted YES on this proposal.',
+          no: 'You voted NO on this proposal.',
+          abstain: 'You abstained from voting on this proposal.'
+        };
+        
+        toast.success('Vote Recorded!', {
+          description: messages[choice],
+          duration: 5000,
+        });
       },
       onError: (error) => {
         console.error('Vote error:', error);
-        // The error will be displayed by the mutation state
+        toast.error('Failed to vote', {
+          description: error.message || 'Please try again later.',
+        });
       }
     });
   }, [vote, proposalId, choice]);
@@ -57,35 +67,15 @@ export function VoteButton({ proposalId, choice, disabled, className }: VoteButt
     }
   };
 
-  const getVoteMessage = () => {
-    switch (choice) {
-      case 'yes':
-        return 'You voted YES on this proposal.';
-      case 'no':
-        return 'You voted NO on this proposal.';
-      case 'abstain':
-        return 'You abstained from voting on this proposal.';
-    }
-  };
-
   return (
-    <>
-      <Button
-        onClick={handleVote}
-        disabled={disabled || isPending || (isError && error?.message?.includes('already voted'))}
-        variant={getButtonVariant()}
-        className={cn('min-w-[120px]', className)}
-      >
-        {getButtonText()}
-      </Button>
-      
-      <SuccessDialog
-        open={showSuccess}
-        onOpenChange={setShowSuccess}
-        title="Vote Recorded!"
-        description={getVoteMessage() + " Your vote has been successfully recorded on the blockchain."}
-        actionLabel="Done"
-      />
-    </>
+    <Button
+      onClick={handleVote}
+      disabled={disabled || isPending || (isError && error?.message?.includes('already voted'))}
+      variant={getButtonVariant()}
+      className={cn('min-w-[120px]', className)}
+      aria-label={`Vote ${choice} on proposal ${proposalId}`}
+    >
+      {getButtonText()}
+    </Button>
   );
 }

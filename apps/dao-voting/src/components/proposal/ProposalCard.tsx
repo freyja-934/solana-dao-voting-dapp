@@ -51,32 +51,32 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
     <Link href={`/proposal/${proposal.id}`}>
       <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
         <CardHeader>
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-xl font-semibold line-clamp-1">{title}</h3>
-            <div className="flex flex-col gap-1 items-end">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <h3 className="text-lg sm:text-xl font-semibold line-clamp-2 flex-1">{title}</h3>
+            <div className="flex flex-wrap gap-1 items-start">
               <Badge variant={getBadgeVariant()}>
                 {getStatusLabel()}
               </Badge>
               {expiringSoon && (
                 <Badge variant="destructive" className="animate-pulse">
                   <Clock className="h-3 w-3 mr-1" />
-                  Expiring Soon
+                  <span className="text-xs">Expiring Soon</span>
                 </Badge>
               )}
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground line-clamp-2">{description}</p>
-          <div className="mt-4 space-y-2">
+          <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 mb-4">{description}</p>
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <UserAvatar address={creatorAddress} size="xs" />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm text-muted-foreground truncate">
                 {creatorAddress.slice(0, 4)}...{creatorAddress.slice(-4)}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+              <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
               {expired ? (
                 <span>Ended {formatDate(proposal.expiresAt)}</span>
               ) : (
@@ -88,22 +88,22 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
           </div>
         </CardContent>
         <CardFooter>
-          <div className="flex items-center gap-4 w-full text-sm">
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-green-600">{yesVotes}</span>
+          <div className="grid grid-cols-3 gap-2 w-full text-xs sm:text-sm">
+            <div className="text-center">
+              <span className="font-medium text-green-600 block">{yesVotes}</span>
               <span className="text-muted-foreground">Yes</span>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-red-600">{noVotes}</span>
+            <div className="text-center">
+              <span className="font-medium text-red-600 block">{noVotes}</span>
               <span className="text-muted-foreground">No</span>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-gray-600">{abstainVotes}</span>
+            <div className="text-center">
+              <span className="font-medium text-gray-600 block">{abstainVotes}</span>
               <span className="text-muted-foreground">Abstain</span>
             </div>
-            <div className="ml-auto text-muted-foreground">
-              {totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}
-            </div>
+          </div>
+          <div className="text-xs sm:text-sm text-muted-foreground text-center mt-2 pt-2 border-t w-full">
+            {totalVotes} total {totalVotes === 1 ? 'vote' : 'votes'}
           </div>
         </CardFooter>
       </Card>

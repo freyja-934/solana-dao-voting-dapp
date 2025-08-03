@@ -54,21 +54,23 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
                   alt={displayName}
-                  className="w-20 h-20 rounded-full"
+                  className="w-20 h-20 rounded-full object-cover flex-shrink-0"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
                   <User className="w-10 h-10 text-white" />
                 </div>
               )}
-              <div>
-                <CardTitle className="text-2xl">{displayName}</CardTitle>
-                <p className="text-muted-foreground text-sm">{address}</p>
+              <div className="text-center sm:text-left min-w-0 flex-1">
+                <CardTitle className="text-xl sm:text-2xl">{displayName}</CardTitle>
+                <p className="text-muted-foreground text-xs sm:text-sm break-all">
+                  {address}
+                </p>
                 {profile?.discord_id && (
                   <Badge variant="secondary" className="mt-2">
                     Discord Connected
@@ -121,16 +123,16 @@ export default function ProfilePage() {
             {isLoading ? (
               <p className="text-muted-foreground">Loading voting history...</p>
             ) : votingHistory && votingHistory.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {votingHistory.map((item, index) => (
                   <div key={index}>
                     <Link href={`/proposal/${item.proposal.id}`}>
-                      <div className="flex items-start justify-between hover:bg-accent p-3 rounded-lg transition-colors cursor-pointer">
-                        <div className="flex-1">
-                          <h4 className="font-medium hover:underline">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between hover:bg-accent p-3 rounded-lg transition-colors cursor-pointer gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium hover:underline line-clamp-2">
                             {item.proposal.title}
                           </h4>
-                          <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1 text-xs sm:text-sm text-muted-foreground">
                             <span>Proposal #{item.proposal.id}</span>
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
@@ -144,12 +146,13 @@ export default function ProfilePage() {
                             item.vote.choice === 'no' ? 'destructive' :
                             'secondary'
                           }
+                          className="self-start"
                         >
                           {item.vote.choice.charAt(0).toUpperCase() + item.vote.choice.slice(1)}
                         </Badge>
                       </div>
                     </Link>
-                    {index < votingHistory.length - 1 && <Separator className="mt-4" />}
+                    {index < votingHistory.length - 1 && <Separator className="my-2" />}
                   </div>
                 ))}
               </div>

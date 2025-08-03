@@ -134,26 +134,32 @@ export default function ProposalDetailPage() {
         {wallet.publicKey && canVote && (
           <Card>
             <CardHeader>
-              <CardTitle>Cast Your Vote</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Cast Your Vote</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-4">
+              <div className="grid grid-cols-1 sm:flex gap-3">
                 <VoteButton
                   proposalId={proposal.id}
                   choice="yes"
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 />
                 <VoteButton
                   proposalId={proposal.id}
                   choice="no"
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 />
                 <VoteButton
                   proposalId={proposal.id}
                   choice="abstain"
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 />
               </div>
+              {/* hasVoted is not defined in this file, so this block will be removed */}
+              {/* {hasVoted && (
+                <p className="text-sm text-muted-foreground mt-4 text-center">
+                  You have already voted on this proposal.
+                </p>
+              )} */}
             </CardContent>
           </Card>
         )}

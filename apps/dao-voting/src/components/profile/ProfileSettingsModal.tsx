@@ -96,7 +96,8 @@ export function ProfileSettingsModal() {
               <Input
                 value={walletAddress || ''}
                 disabled
-                className="font-mono text-xs"
+                className="font-mono text-xs truncate"
+                readOnly
               />
             </div>
 

@@ -29,10 +29,13 @@
   }
 }
 
-/* Add explicit card background styles */
+/* Add explicit card and background styles */
 @layer utilities {
   .bg-card {
     background-color: hsl(var(--card));
+  }
+  .bg-background {
+    background-color: hsl(var(--background));
   }
 }
 
@@ -121,6 +124,72 @@ button:not(:disabled) {
 .disabled,
 .pointer-events-none {
   cursor: default !important;
+}
+
+/* Enhanced focus styles for better keyboard navigation */
+/* Remove default outline */
+*:focus {
+  outline: none;
+}
+
+/* Add custom focus styles */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Special focus styles for cards and interactive containers */
+.focus-card:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Skip link styles */
+.skip-link:focus {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  z-index: 50;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+  }
+  
+  .light {
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+  }
 }
 
 blockquote {
