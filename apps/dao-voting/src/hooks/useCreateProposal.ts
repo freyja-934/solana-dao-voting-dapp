@@ -5,6 +5,7 @@ import {
     getProposalPDA,
     sendAndConfirmTransaction
 } from '@/lib/anchor-client';
+import { supabase } from '@/lib/supabase';
 import { Transaction } from '@solana/web3.js';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAnchorProvider } from './useAnchorProvider';
@@ -94,9 +95,31 @@ export function useCreateProposal() {
         throw error;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['proposals'] });
-      queryClient.invalidateQueries({ queryKey: ['dao-state'] });
+    onSuccess: async () => {
+      console.log('Proposal created successfully');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await queryClient.invalidateQueries({ queryKey: ['proposals'] });
+      await queryClient.invalidateQueries({ queryKey: ['dao-state'] });
+      
+      // Update user reputation
+      const walletAddress = wallet.publicKey?.toBase58();
+      if (walletAddress) {
+        try {
+          await supabase
+            .from('user_reputation')
+            .upsert({
+              wallet_address: walletAddress,
+              proposals_created: 1,
+            }, {
+              onConflict: 'wallet_address',
+              count: 'exact',
+            });
+          
+          await supabase.rpc('calculate_voting_power', { wallet: walletAddress });
+        } catch (error) {
+          console.error('Failed to update reputation:', error);
+        }
+      }
     },
   });
 }

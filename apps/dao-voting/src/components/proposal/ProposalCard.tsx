@@ -1,5 +1,6 @@
 'use client';
 
+import { UserAvatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProposalAccount } from '@/lib/anchor-client';
@@ -14,7 +15,28 @@ interface ProposalCardProps {
 export function ProposalCard({ proposal }: ProposalCardProps) {
   const totalVotes = proposal.yesVotes + proposal.noVotes + proposal.abstainVotes;
   const isActive = proposal.status === 'active';
-  const expired = isActive && isProposalExpired(proposal.expiresAt);
+  const expired = proposal.status === 'expired' || (isActive && isProposalExpired(proposal.expiresAt));
+  const creatorAddress = proposal.creator.toBase58();
+
+  const getBadgeVariant = () => {
+    switch (proposal.status) {
+      case 'active':
+        return expired ? 'destructive' : 'default';
+      case 'passed':
+        return 'default';
+      case 'rejected':
+        return 'destructive';
+      case 'expired':
+        return 'secondary';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const getStatusLabel = () => {
+    if (proposal.status === 'active' && expired) return 'Expired';
+    return proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1);
+  };
 
   return (
     <Link href={`/proposal/${proposal.id}`}>
@@ -22,20 +44,20 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
         <CardHeader>
           <div className="flex items-start justify-between">
             <CardTitle className="text-xl">{proposal.title}</CardTitle>
-            <Badge 
-              variant={
-                !isActive ? 'secondary' : 
-                expired ? 'destructive' : 
-                'default'
-              }
-            >
-              {!isActive ? 'Finalized' : expired ? 'Expired' : 'Active'}
+            <Badge variant={getBadgeVariant()}>
+              {getStatusLabel()}
             </Badge>
           </div>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground line-clamp-2">{proposal.description}</p>
           <div className="mt-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <UserAvatar address={creatorAddress} size="xs" />
+              <span className="text-sm text-muted-foreground">
+                {creatorAddress.slice(0, 4)}...{creatorAddress.slice(-4)}
+              </span>
+            </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               {isActive && !expired ? (

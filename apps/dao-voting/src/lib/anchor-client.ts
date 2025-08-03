@@ -27,9 +27,9 @@ export interface ProposalAccount {
   yesVotes: number;
   noVotes: number;
   abstainVotes: number;
-  status: 'active' | 'finalized';
+  status: 'active' | 'passed' | 'rejected' | 'expired';
   createdAt: number;
-  expiresAt: number;  // New field
+  expiresAt: number;
   bump: number;
 }
 
@@ -201,6 +201,24 @@ export function createFinalizeProposalInstruction(
   });
 }
 
+export function finalizeProposalInstruction(
+  daoStatePda: PublicKey,
+  proposalPda: PublicKey,
+  authority: PublicKey
+): TransactionInstruction {
+  const data = Buffer.concat([INSTRUCTION_DISCRIMINATORS.finalizeProposal]);
+
+  return new TransactionInstruction({
+    programId: PROGRAM_ID,
+    keys: [
+      { pubkey: daoStatePda, isSigner: false, isWritable: false },
+      { pubkey: proposalPda, isSigner: false, isWritable: true },
+      { pubkey: authority, isSigner: true, isWritable: false },
+    ],
+    data,
+  });
+}
+
 // Helper to send and confirm transaction
 export async function sendAndConfirmTransaction(
   connection: Connection,
@@ -352,7 +370,13 @@ export async function fetchProposal(connection: Connection, proposalId: number):
     
     const statusByte = data.readUInt8(offset);
     offset += 1;
-    const status = statusByte === 0 ? 'active' : 'finalized';
+    const statusMap: { [key: number]: ProposalAccount['status'] } = {
+      0: 'active',
+      1: 'passed',
+      2: 'rejected',
+      3: 'expired'
+    };
+    const status = statusMap[statusByte] || 'active';
     
     view = new DataView(data.buffer, data.byteOffset + offset, 8);
     const createdAt = Number(view.getBigUint64(0, true));

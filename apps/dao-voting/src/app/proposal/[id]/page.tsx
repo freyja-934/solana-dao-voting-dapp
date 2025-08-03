@@ -1,6 +1,8 @@
 'use client';
 
+import { CommentSection } from '@/components/comments/CommentSection';
 import { ProposalResults } from '@/components/proposal/ProposalResults';
+import { UserAvatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -50,8 +52,30 @@ export default function ProposalDetailPage() {
   }
 
   const isActive = proposal.status === 'active';
-  const expired = isActive && isProposalExpired(proposal.expiresAt);
+  const expired = proposal.status === 'expired' || (isActive && isProposalExpired(proposal.expiresAt));
   const canVote = isActive && !expired;
+  
+  const getBadgeVariant = () => {
+    switch (proposal.status) {
+      case 'active':
+        return expired ? 'destructive' : 'default';
+      case 'passed':
+        return 'default';
+      case 'rejected':
+        return 'destructive';
+      case 'expired':
+        return 'secondary';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const getStatusLabel = () => {
+    if (proposal.status === 'active' && expired) return 'Expired';
+    return proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1);
+  };
+
+  const creatorAddress = proposal.creator.toBase58();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -62,19 +86,18 @@ export default function ProposalDetailPage() {
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="text-3xl">{proposal.title}</CardTitle>
-                <p className="text-muted-foreground mt-2">
-                  Proposal #{proposal.id} • Created by {proposal.creator.toBase58().slice(0, 8)}...
-                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <UserAvatar address={creatorAddress} size="sm" />
+                  <p className="text-muted-foreground">
+                    Proposal #{proposal.id} • Created by {creatorAddress.slice(0, 8)}...
+                  </p>
+                </div>
               </div>
               <Badge
-                variant={
-                  !isActive ? 'secondary' : 
-                  expired ? 'destructive' : 
-                  'default'
-                }
+                variant={getBadgeVariant()}
                 className="text-sm"
               >
-                {!isActive ? 'Finalized' : expired ? 'Expired' : 'Active'}
+                {getStatusLabel()}
               </Badge>
             </div>
           </CardHeader>
@@ -150,6 +173,9 @@ export default function ProposalDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Comments Section */}
+        <CommentSection proposalId={proposalId} />
       </div>
     </div>
   );

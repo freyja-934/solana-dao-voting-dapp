@@ -1,14 +1,17 @@
 'use client';
 
+import { TestSupabase } from '@/components/debug/TestSupabase';
 import { CreateProposalModal } from '@/components/proposal/CreateProposalModal';
 import { ProposalCard } from '@/components/proposal/ProposalCard';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useProposals } from '@/hooks/useProposals';
+import { useProposalStats } from '@/hooks/useProposalStats';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function Home() {
   const { connected } = useWallet();
   const { data: proposals, isLoading, error } = useProposals();
+  const { data: stats } = useProposalStats();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -22,25 +25,25 @@ export default function Home() {
         <Card className='grow'>
           <CardHeader>Total Proposals</CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">100</p>
+            <p className="text-2xl font-bold">{stats?.total || 0}</p>
           </CardContent>
         </Card>
         <Card className='grow'>
           <CardHeader>Live Proposals</CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">100</p>
+            <p className="text-2xl font-bold">{stats?.active || 0}</p>
           </CardContent>
         </Card>
         <Card className='grow'>
           <CardHeader>Proposals Passed</CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">100</p>
+            <p className="text-2xl font-bold">{stats?.passed || 0}</p>
           </CardContent>
         </Card>
         <Card className='grow'>
           <CardHeader>Proposals Rejected</CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">100</p>
+            <p className="text-2xl font-bold">{stats?.rejected || 0}</p>
           </CardContent>
         </Card>
       </div>
@@ -80,6 +83,9 @@ export default function Home() {
           ))}
         </div>
       )}
+
+      {/* Temporary debug component */}
+      <TestSupabase />
     </div>
   );
 }

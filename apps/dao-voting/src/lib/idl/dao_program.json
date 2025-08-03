@@ -242,7 +242,13 @@
             "name": "Active"
           },
           {
-            "name": "Finalized"
+            "name": "Passed"
+          },
+          {
+            "name": "Rejected"
+          },
+          {
+            "name": "Expired"
           }
         ]
       }
@@ -392,8 +398,5 @@
       "name": "Unauthorized",
       "msg": "Unauthorized action"
     }
-  ],
-  "metadata": {
-    "address": "HPH6itf3pTzFGReDBju8XhvQ8kgN1Wtpmd4oqXgaXKqp"
-  }
+  ]
 }

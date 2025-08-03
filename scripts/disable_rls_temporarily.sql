@@ -1,0 +1,15 @@
+-- Temporarily disable RLS on all tables for testing
+-- WARNING: Only use this for development/testing!
+
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE proposal_activities DISABLE ROW LEVEL SECURITY;
+ALTER TABLE comments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE comment_votes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE user_reputation DISABLE ROW LEVEL SECURITY;
+
+-- To re-enable RLS later, run:
+-- ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE proposal_activities ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE comment_votes ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE user_reputation ENABLE ROW LEVEL SECURITY; 

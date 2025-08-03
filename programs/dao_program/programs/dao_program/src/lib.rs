@@ -111,10 +111,27 @@ pub mod dao_program {
             ErrorCode::Unauthorized
         );
         
-        proposal.status = ProposalStatus::Finalized;
+        let clock = Clock::get()?;
+        let current_timestamp = clock.unix_timestamp;
+        
+        if current_timestamp > proposal.expires_at {
+            proposal.status = ProposalStatus::Expired;
+        } else {
+            let total_votes = proposal.yes_votes + proposal.no_votes;
+            if total_votes == 0 {
+                proposal.status = ProposalStatus::Rejected;
+            } else {
+                let yes_percentage = (proposal.yes_votes as f64 / total_votes as f64) * 100.0;
+                proposal.status = if yes_percentage > 50.0 {
+                    ProposalStatus::Passed
+                } else {
+                    ProposalStatus::Rejected
+                };
+            }
+        }
         
         let total_votes = proposal.yes_votes + proposal.no_votes + proposal.abstain_votes;
-        let passed = proposal.yes_votes > proposal.no_votes;
+        let passed = matches!(proposal.status, ProposalStatus::Passed);
         
         emit!(ProposalFinalized {
             proposal_id: proposal.id,
@@ -242,7 +259,9 @@ pub struct VoteRecord {
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
 pub enum ProposalStatus {
     Active,
-    Finalized,
+    Passed,
+    Rejected,
+    Expired,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
