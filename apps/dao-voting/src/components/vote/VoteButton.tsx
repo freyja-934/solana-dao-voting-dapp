@@ -1,9 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { SuccessDialog } from '@/components/ui/success-dialog';
 import { useVote } from '@/hooks/useVote';
 import { cn } from '@/lib/utils';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 interface VoteButtonProps {
   proposalId: number;
@@ -14,9 +15,13 @@ interface VoteButtonProps {
 
 export function VoteButton({ proposalId, choice, disabled, className }: VoteButtonProps) {
   const { mutate: vote, isPending, isError, error } = useVote();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleVote = useCallback(() => {
     vote({ proposalId, choice }, {
+      onSuccess: () => {
+        setShowSuccess(true);
+      },
       onError: (error) => {
         console.error('Vote error:', error);
         // The error will be displayed by the mutation state
@@ -48,19 +53,39 @@ export function VoteButton({ proposalId, choice, disabled, className }: VoteButt
       case 'no':
         return 'destructive';
       case 'abstain':
-        return 'outline';
+        return 'secondary';
+    }
+  };
+
+  const getVoteMessage = () => {
+    switch (choice) {
+      case 'yes':
+        return 'You voted YES on this proposal.';
+      case 'no':
+        return 'You voted NO on this proposal.';
+      case 'abstain':
+        return 'You abstained from voting on this proposal.';
     }
   };
 
   return (
-    <Button
-      onClick={handleVote}
-      disabled={disabled || isPending || (isError && error?.message?.includes('already voted'))}
-      variant={getButtonVariant() as any}
-      className={cn(className)}
-      title={isError ? error?.message : undefined}
-    >
-      {getButtonText()}
-    </Button>
+    <>
+      <Button
+        onClick={handleVote}
+        disabled={disabled || isPending || (isError && error?.message?.includes('already voted'))}
+        variant={getButtonVariant()}
+        className={cn('min-w-[120px]', className)}
+      >
+        {getButtonText()}
+      </Button>
+      
+      <SuccessDialog
+        open={showSuccess}
+        onOpenChange={setShowSuccess}
+        title="Vote Recorded!"
+        description={getVoteMessage() + " Your vote has been successfully recorded on the blockchain."}
+        actionLabel="Done"
+      />
+    </>
   );
 }

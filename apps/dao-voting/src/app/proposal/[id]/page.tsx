@@ -2,6 +2,7 @@
 
 import { CommentSection } from '@/components/comments/CommentSection';
 import { ProposalResults } from '@/components/proposal/ProposalResults';
+import { VotingActivity } from '@/components/proposal/VotingActivity';
 import { UserAvatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -125,6 +126,9 @@ export default function ProposalDetailPage() {
 
         {/* Results Card */}
         <ProposalResults proposal={proposal} />
+
+        {/* Voting Activity Widget */}
+        <VotingActivity proposalId={proposal.id} />
 
         {/* Voting Actions */}
         {wallet.publicKey && canVote && (

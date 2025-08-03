@@ -1,7 +1,5 @@
 import { Header } from '@/components/layout/Header';
-import { QueryProvider } from '@/components/providers/QueryProvider';
-import { SessionProvider } from '@/components/providers/SessionProvider';
-import { WalletContextProvider } from '@/components/providers/WalletContextProvider';
+import { AppProviders } from '@/components/providers/AppProviders';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -31,16 +29,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
-          <QueryProvider>
-            <WalletContextProvider>
-              <div className="min-h-screen bg-background">
-                <Header />
-                <main>{children}</main>
-              </div>
-            </WalletContextProvider>
-          </QueryProvider>
-        </SessionProvider>
+        <AppProviders>
+          <div className="min-h-screen bg-background">
+            <Header />
+            <main>{children}</main>
+          </div>
+        </AppProviders>
       </body>
     </html>
   );

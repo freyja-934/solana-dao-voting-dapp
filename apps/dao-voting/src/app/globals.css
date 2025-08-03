@@ -29,13 +29,20 @@
   }
 }
 
+/* Add explicit card background styles */
+@layer utilities {
+  .bg-card {
+    background-color: hsl(var(--card));
+  }
+}
+
 :root {
   /* Dark mode as default */
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
+  --card: 222.2 84% 10%;
   --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
+  --popover: 222.2 84% 10%;
   --popover-foreground: 210 40% 98%;
   --primary: 221.2 83.2% 53.3%; /* Nice blue for Solana */
   --primary-foreground: 210 40% 98%;
@@ -56,9 +63,9 @@
 .light {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
+  --card: 0 0% 98%;
   --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
+  --popover: 0 0% 98%;
   --popover-foreground: 222.2 84% 4.9%;
   --primary: 221.2 83.2% 53.3%; /* Nice blue for Solana */
   --primary-foreground: 210 40% 98%;

@@ -76,10 +76,39 @@ export default function Home() {
       )}
 
       {proposals && proposals.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {proposals.map((proposal, index) => (
-            <ProposalCard key={index} proposal={proposal} />
-          ))}
+        <div className="space-y-8">
+          {/* Active Proposals */}
+          {(() => {
+            const now = Math.floor(Date.now() / 1000);
+            const activeProposals = proposals.filter(p => p.status === 'active' && p.expiresAt > now);
+            const expiredProposals = proposals.filter(p => p.status !== 'active' || p.expiresAt <= now);
+            
+            return (
+              <>
+                {activeProposals.length > 0 && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-4">Active Proposals</h2>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {activeProposals.map((proposal) => (
+                        <ProposalCard key={proposal.id} proposal={proposal} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {expiredProposals.length > 0 && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-4 text-muted-foreground">Past Proposals</h2>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {expiredProposals.map((proposal) => (
+                        <ProposalCard key={proposal.id} proposal={proposal} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
 
