@@ -9,12 +9,16 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useCreateOrUpdateProfile, useUserProfile } from '@/hooks/useUserProfile';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { ImageIcon, Settings } from 'lucide-react';
+import { ImageIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-export function ProfileSettingsModal() {
+interface ProfileSettingsModalProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function ProfileSettingsModal({ open, onOpenChange }: ProfileSettingsModalProps) {
   const { publicKey } = useWallet();
-  const [isOpen, setIsOpen] = useState(false);
   const [showNFTSelector, setShowNFTSelector] = useState(false);
   const [username, setUsername] = useState('');
   
@@ -42,7 +46,7 @@ export function ProfileSettingsModal() {
       nft_mint_address: profile?.nft_mint_address || null,
     }, {
       onSuccess: () => {
-        setIsOpen(false);
+        onOpenChange?.(false);
       },
     });
   };
@@ -64,16 +68,7 @@ export function ProfileSettingsModal() {
 
   return (
     <>
-      <Button
-        onClick={() => setIsOpen(true)}
-        variant="outline"
-        size="icon"
-        className="ml-2"
-      >
-        <Settings className="h-4 w-4" />
-      </Button>
-
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Profile Settings</DialogTitle>
@@ -130,7 +125,7 @@ export function ProfileSettingsModal() {
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 variant="outline"
-                onClick={() => setIsOpen(false)}
+                onClick={() => onOpenChange?.(false)}
                 disabled={isPending}
               >
                 Cancel

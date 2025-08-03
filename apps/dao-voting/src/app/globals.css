@@ -39,15 +39,54 @@
   }
 }
 
+/* Gradient backgrounds */
+@layer utilities {
+  .bg-gradient-base {
+    background: linear-gradient(to bottom right, hsl(226 71% 12%), hsl(226 71% 4%));
+  }
+  
+  .bg-gradient-radial {
+    background: radial-gradient(ellipse at top left, hsl(226 71% 15%), hsl(226 71% 4%));
+  }
+  
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(214 100% 50%), hsl(234 100% 60%));
+  }
+  
+  .bg-gradient-primary-hover {
+    background: linear-gradient(135deg, hsl(214 100% 55%), hsl(234 100% 65%));
+  }
+
+  /* Glassmorphism effects */
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-darker {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
 :root {
-  /* Dark mode as default */
-  --background: 222.2 84% 4.9%;
+  /* Dark mode as default - Updated for deep navy theme */
+  --background: 226 71% 6%;
   --foreground: 210 40% 98%;
-  --card: 222.2 84% 10%;
+  --card: 226 71% 8%;
   --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 10%;
+  --popover: 226 71% 8%;
   --popover-foreground: 210 40% 98%;
-  --primary: 221.2 83.2% 53.3%; /* Nice blue for Solana */
+  --primary: 214 100% 50%; /* Bright blue for primary */
   --primary-foreground: 210 40% 98%;
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
@@ -59,8 +98,8 @@
   --destructive-foreground: 210 40% 98%;
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 221.2 83.2% 53.3%; /* Match primary */
-  --radius: 0.5rem;
+  --ring: 214 100% 50%; /* Match primary */
+  --radius: 0.75rem;
 }
 
 .light {
@@ -92,6 +131,49 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  min-height: 100vh;
+}
+
+/* Apply gradient background to html for full coverage */
+html {
+  background: linear-gradient(to bottom right, hsl(226 71% 12%), hsl(226 71% 4%));
+  min-height: 100vh;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Utility classes for animations */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Smooth transitions */
+* {
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Cursor pointer styles */
