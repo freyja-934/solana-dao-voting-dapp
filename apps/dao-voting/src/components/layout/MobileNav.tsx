@@ -9,12 +9,19 @@ import { Home, Menu, Settings, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export const MobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { publicKey } = useWallet();
   const pathname = usePathname();
+
+  // Handle mounting for portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close menu on route change
   useEffect(() => {
@@ -55,37 +62,25 @@ export const MobileNav = () => {
     setIsOpen(false); // Close mobile menu when opening settings
   };
 
-  return (
+  const mobileMenuContent = (
     <>
-      {/* Menu Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleMenu}
-        className="md:hidden relative z-50"
-        aria-label="Open menu"
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
-
       {/* Backdrop */}
-      <div 
-        className={cn(
-          "fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden",
-          isOpen ? "opacity-100 z-40" : "opacity-0 pointer-events-none"
-        )}
-        onClick={toggleMenu}
-        aria-hidden="true"
-      />
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] md:hidden"
+          onClick={toggleMenu}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Drawer */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 w-64 bg-background shadow-xl transition-transform duration-300 ease-in-out md:hidden z-50",
+          "fixed inset-y-0 right-0 w-64 bg-background border-l border-white/10 shadow-xl transform transition-transform duration-300 ease-in-out md:hidden z-[101]",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <div className="flex flex-col h-full border-l glass-darker">
+        <div className="flex flex-col h-full glass-darker">
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-white/10">
             <h2 className="text-lg font-semibold">Menu</h2>
@@ -151,6 +146,24 @@ export const MobileNav = () => {
           </div>
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Menu Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleMenu}
+        className="md:hidden"
+        aria-label="Open menu"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      {/* Portal for mobile menu - renders outside of header's stacking context */}
+      {mounted && createPortal(mobileMenuContent, document.body)}
 
       {/* Profile Settings Modal */}
       <ProfileSettingsModal 
