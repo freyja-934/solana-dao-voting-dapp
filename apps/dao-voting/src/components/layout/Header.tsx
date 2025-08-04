@@ -26,7 +26,6 @@ export const Header = () => {
     <header className="sticky top-0 z-40 w-full border-b border-white/10 glass-darker">
       <div className="container mx-auto px-6 sm:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <Link 
             href="/" 
             className="flex items-center gap-2 text-xl sm:text-2xl font-bold hover:opacity-80 transition-all duration-300 hover:scale-105"
@@ -37,7 +36,6 @@ export const Header = () => {
             </span>
           </Link>
           
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link 
               href="/" 
@@ -85,7 +83,6 @@ export const Header = () => {
             <WalletButton />
           </nav>
 
-          {/* Mobile Navigation */}
           <MobileNav />
         </div>
       </div>
