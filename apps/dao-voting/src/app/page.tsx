@@ -16,7 +16,6 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-7xl">
-      {/* Page Header */}
       <header className="mb-8 md:mb-12">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">
           Governance
@@ -26,14 +25,12 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Create Proposal Button - Only show when connected */}
       {connected && (
         <section className="mb-8 md:mb-10">
           <CreateProposalModal />
         </section>
       )}
 
-      {/* Stats Cards */}
       {stats && (
         <section className="mb-8 md:mb-12" aria-label="Proposal statistics">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -73,7 +70,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* Loading State */}
       {isLoading && (
         <section aria-busy="true" aria-label="Loading proposals">
           <h2 className="text-xl md:text-2xl font-semibold mb-6">Loading Proposals...</h2>
@@ -85,7 +81,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* Error State */}
       {error && (
         <section className="my-12">
           <Card className="border-destructive max-w-2xl mx-auto">
@@ -100,7 +95,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* Empty State */}
       {connected && proposals && proposals.length === 0 && !isLoading && (
         <section className="my-12">
           <Card className="max-w-2xl mx-auto">
@@ -114,10 +108,8 @@ export default function Home() {
         </section>
       )}
 
-      {/* Proposals List */}
       {proposals && proposals.length > 0 && !isLoading && (
         <>
-          {/* Active Proposals */}
           {(() => {
             const now = Math.floor(Date.now() / 1000);
             const activeProposals = proposals.filter(p => p.status === 'active' && p.expiresAt > now);
@@ -137,7 +129,7 @@ export default function Home() {
                     </div>
                   </section>
                 )}
-                
+
                 {expiredProposals.length > 0 && (
                   <section aria-label="Past proposals">
                     <h2 className="text-xl md:text-2xl font-semibold mb-6 text-muted-foreground">
