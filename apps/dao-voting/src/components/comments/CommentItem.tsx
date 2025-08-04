@@ -29,20 +29,27 @@ export function CommentItem({ comment, proposalId, depth = 0 }: CommentItemProps
   const displayName = authorProfile?.username || 
     `${comment.author_wallet.slice(0, 4)}...${comment.author_wallet.slice(-4)}`;
 
+  // Responsive indentation based on depth
+  const getIndentationClass = () => {
+    if (depth === 0) return '';
+    if (depth === 1) return 'ml-4 sm:ml-8 border-l-2 border-border pl-2 sm:pl-4';
+    return 'ml-2 sm:ml-4 border-l-2 border-border pl-2 sm:pl-4';
+  };
+
   return (
-    <div className={`${depth > 0 ? 'ml-8 border-l-2 border-border pl-4' : ''}`}>
+    <div className={getIndentationClass()}>
       <div className="space-y-2">
-        <div className="flex items-start gap-3">
-          <UserAvatar address={comment.author_wallet} size="sm" />
-          <div className="flex-1 space-y-1">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="font-medium">{displayName}</span>
-              <span className="text-muted-foreground">
+        <div className="flex gap-3">
+          <UserAvatar address={comment.author_wallet} size="sm" className="flex-shrink-0" />
+          <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="font-medium truncate">{displayName}</span>
+              <span className="text-muted-foreground text-xs">
                 {formatDate(new Date(comment.created_at).getTime() / 1000)}
               </span>
             </div>
-            <p className="text-sm">{comment.content}</p>
-            <div className="flex items-center gap-2 mt-2">
+            <p className="text-sm break-words">{comment.content}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
               <div className="flex items-center gap-1">
                 <Button
                   size="sm"
@@ -70,7 +77,7 @@ export function CommentItem({ comment, proposalId, depth = 0 }: CommentItemProps
                   className="h-7 px-2"
                   onClick={() => setShowReply(!showReply)}
                 >
-                  <MessageSquare className="h-4 w-4 mr-1" />
+                  <MessageSquare className="h-3 w-3 mr-1" />
                   Reply
                 </Button>
               )}
@@ -91,7 +98,7 @@ export function CommentItem({ comment, proposalId, depth = 0 }: CommentItemProps
         </div>
 
         {showReply && (
-          <div className="ml-11 mt-3">
+          <div className="ml-0 sm:ml-11 mt-3">
             <CommentForm
               proposalId={proposalId}
               parentCommentId={comment.id}

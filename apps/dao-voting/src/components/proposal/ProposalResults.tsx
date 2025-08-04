@@ -23,11 +23,13 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
             <span className="text-green-600 font-medium">Yes</span>
-            <span className="text-muted-foreground">{yesVotes} votes ({yesPercentage}%)</span>
+            <span className="text-muted-foreground text-right break-all">
+              {yesVotes.toLocaleString()} votes ({yesPercentage}%)
+            </span>
           </div>
-          <div className="w-full bg-secondary rounded-full h-2">
+          <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
             <div
               className="bg-green-600 h-2 rounded-full transition-all"
               style={{ width: `${yesPercentage}%` }}
@@ -36,11 +38,13 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
         </div>
 
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
             <span className="text-red-600 font-medium">No</span>
-            <span className="text-muted-foreground">{noVotes} votes ({noPercentage}%)</span>
+            <span className="text-muted-foreground text-right break-all">
+              {noVotes.toLocaleString()} votes ({noPercentage}%)
+            </span>
           </div>
-          <div className="w-full bg-secondary rounded-full h-2">
+          <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
             <div
               className="bg-red-600 h-2 rounded-full transition-all"
               style={{ width: `${noPercentage}%` }}
@@ -49,11 +53,13 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
         </div>
 
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
             <span className="text-gray-600 font-medium">Abstain</span>
-            <span className="text-muted-foreground">{abstainVotes} votes ({abstainPercentage}%)</span>
+            <span className="text-muted-foreground text-right break-all">
+              {abstainVotes.toLocaleString()} votes ({abstainPercentage}%)
+            </span>
           </div>
-          <div className="w-full bg-secondary rounded-full h-2">
+          <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
             <div
               className="bg-gray-600 h-2 rounded-full transition-all"
               style={{ width: `${abstainPercentage}%` }}
@@ -62,9 +68,11 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
         </div>
 
         <div className="pt-4 border-t">
-          <div className="flex justify-between text-sm">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
             <span className="font-medium">Total Votes</span>
-            <span className="text-muted-foreground">{totalVotes}</span>
+            <span className="text-muted-foreground text-right break-all">
+              {totalVotes.toLocaleString()}
+            </span>
           </div>
         </div>
       </CardContent>
