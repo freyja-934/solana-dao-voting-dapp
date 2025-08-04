@@ -59,12 +59,11 @@ export const MobileNav = () => {
 
   const handleSettingsClick = () => {
     setShowProfileSettings(true);
-    setIsOpen(false); // Close mobile menu when opening settings
+    setIsOpen(false);
   };
 
   const mobileMenuContent = (
     <>
-      {/* Backdrop */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] md:hidden"
@@ -73,7 +72,6 @@ export const MobileNav = () => {
         />
       )}
 
-      {/* Drawer */}
       <div
         className={cn(
           "fixed inset-y-0 right-0 w-64 bg-background border-l border-white/10 shadow-xl transform transition-transform duration-300 ease-in-out md:hidden z-[101]",
@@ -81,7 +79,6 @@ export const MobileNav = () => {
         )}
       >
         <div className="flex flex-col h-full glass-darker">
-          {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-white/10">
             <h2 className="text-lg font-semibold">Menu</h2>
             <Button
@@ -94,7 +91,6 @@ export const MobileNav = () => {
             </Button>
           </div>
 
-          {/* Navigation Items */}
           <nav className="flex-1 overflow-y-auto p-5">
             <ul className="space-y-2">
               {navItems.map((item) => {
@@ -125,7 +121,6 @@ export const MobileNav = () => {
                 );
               })}
               
-              {/* Settings Button */}
               {publicKey && (
                 <li>
                   <button
@@ -140,7 +135,6 @@ export const MobileNav = () => {
             </ul>
           </nav>
 
-          {/* Wallet Connection */}
           <div className="p-5 border-t border-white/10">
             <WalletButton />
           </div>
@@ -151,7 +145,6 @@ export const MobileNav = () => {
 
   return (
     <>
-      {/* Menu Button */}
       <Button
         variant="ghost"
         size="icon"
@@ -162,10 +155,8 @@ export const MobileNav = () => {
         <Menu className="h-5 w-5" />
       </Button>
 
-      {/* Portal for mobile menu - renders outside of header's stacking context */}
       {mounted && createPortal(mobileMenuContent, document.body)}
 
-      {/* Profile Settings Modal */}
       <ProfileSettingsModal 
         open={showProfileSettings}
         onOpenChange={setShowProfileSettings}
