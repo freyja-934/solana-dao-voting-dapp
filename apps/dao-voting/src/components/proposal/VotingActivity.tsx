@@ -38,14 +38,14 @@ export function VotingActivity({ proposalId }: VotingActivityProps) {
   };
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <CardHeader className="pb-3 sm:pb-6">
         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-          <Activity className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span>Voting Activity</span>
+          <Activity className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+          <span className="truncate">Voting Activity</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
@@ -69,11 +69,11 @@ export function VotingActivity({ proposalId }: VotingActivityProps) {
               
               return (
                 <div key={`${activity.userWallet}-${index}`} 
-                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <UserAvatar address={activity.userWallet} size="sm" />
+                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-lg bg-muted/50 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                    <UserAvatar address={activity.userWallet} size="sm" className="flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-xs sm:text-sm truncate">{displayName}</p>
+                      <p className="font-medium text-xs sm:text-sm truncate max-w-[150px] sm:max-w-[200px]">{displayName}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatDate(activity.timestamp)}
                       </p>
@@ -81,7 +81,7 @@ export function VotingActivity({ proposalId }: VotingActivityProps) {
                   </div>
                   <Badge 
                     variant={getVoteBadgeVariant(activity.choice)}
-                    className="flex items-center gap-1 self-start sm:self-center"
+                    className="flex items-center gap-1 self-start sm:self-center flex-shrink-0"
                   >
                     {getVoteIcon(activity.choice)}
                     <span className="text-xs">{activity.choice.toUpperCase()}</span>

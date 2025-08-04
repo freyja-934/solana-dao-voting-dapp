@@ -65,7 +65,7 @@ export default function RootLayout({
                 {children}
               </main>
               <footer className="mt-auto border-t border-white/10 backdrop-blur-sm bg-black/20">
-                <div className="container mx-auto px-4 py-6">
+                <div className="container mx-auto px-6 sm:px-8 py-6">
                   <p className="text-center text-sm text-white/60">
                     © 2024 Solana DAO. Built with ❤️ on Solana.
                   </p>

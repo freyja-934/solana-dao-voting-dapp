@@ -8,13 +8,31 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Home, Menu, Settings, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const MobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const { publicKey } = useWallet();
   const pathname = usePathname();
+
+  // Close menu on route change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -44,31 +62,32 @@ export const MobileNav = () => {
         variant="ghost"
         size="icon"
         onClick={toggleMenu}
-        className="md:hidden"
+        className="md:hidden relative z-50"
         aria-label="Open menu"
       >
         <Menu className="h-5 w-5" />
       </Button>
 
       {/* Backdrop */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
-          onClick={toggleMenu}
-        />
-      )}
+      <div 
+        className={cn(
+          "fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden",
+          isOpen ? "opacity-100 z-40" : "opacity-0 pointer-events-none"
+        )}
+        onClick={toggleMenu}
+        aria-hidden="true"
+      />
 
       {/* Drawer */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 w-64 z-50 transform transition-transform duration-300 ease-in-out md:hidden",
+          "fixed inset-y-0 right-0 w-64 bg-background shadow-xl transition-transform duration-300 ease-in-out md:hidden z-50",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
-        style={{ backgroundColor: 'hsl(var(--background))' }}
       >
-        <div className="flex flex-col h-full border-l bg-card">
+        <div className="flex flex-col h-full border-l glass-darker">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-5 border-b border-white/10">
             <h2 className="text-lg font-semibold">Menu</h2>
             <Button
               variant="ghost"
@@ -81,7 +100,7 @@ export const MobileNav = () => {
           </div>
 
           {/* Navigation Items */}
-          <nav className="flex-1 overflow-y-auto p-4">
+          <nav className="flex-1 overflow-y-auto p-5">
             <ul className="space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -127,7 +146,7 @@ export const MobileNav = () => {
           </nav>
 
           {/* Wallet Connection */}
-          <div className="p-4 border-t">
+          <div className="p-5 border-t border-white/10">
             <WalletButton />
           </div>
         </div>

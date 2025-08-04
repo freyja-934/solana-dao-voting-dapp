@@ -33,7 +33,7 @@ export default function ProposalDetailPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-4xl">
         <div className="space-y-6">
           <Skeleton className="h-12 w-3/4" />
           <Skeleton className="h-20 w-full" />
@@ -50,7 +50,7 @@ export default function ProposalDetailPage() {
   // Error state
   if (error || !proposal) {
     return (
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-4xl">
         <Card className="border-destructive">
           <CardContent className="py-12 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
@@ -93,7 +93,7 @@ export default function ProposalDetailPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+    <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-4xl">
       {/* Proposal Header */}
       <header className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
@@ -121,7 +121,7 @@ export default function ProposalDetailPage() {
       </header>
 
       {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 overflow-x-hidden">
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Description */}

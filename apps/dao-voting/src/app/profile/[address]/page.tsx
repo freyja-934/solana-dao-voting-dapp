@@ -30,7 +30,7 @@ export default function ProfilePage() {
   // Invalid address state
   if (!userPublicKey) {
     return (
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-4xl">
         <Card className="border-destructive">
           <CardContent className="py-12 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
@@ -66,7 +66,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+    <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-4xl">
       <div className="space-y-6">
         {/* Profile Header */}
         <Card>

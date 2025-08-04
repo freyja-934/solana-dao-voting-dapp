@@ -15,7 +15,7 @@ export default function Home() {
   const { data: stats } = useProposalStats();
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
+    <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-7xl">
       {/* Page Header */}
       <header className="mb-8 md:mb-12">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">

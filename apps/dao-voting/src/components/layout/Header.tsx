@@ -24,7 +24,7 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 glass-darker">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 sm:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link 
