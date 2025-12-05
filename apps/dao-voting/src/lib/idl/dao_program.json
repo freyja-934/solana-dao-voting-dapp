@@ -120,6 +120,84 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "updateVotingConfig",
+      "accounts": [
+        {
+          "name": "daoState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "config",
+          "type": {
+            "defined": "VotingConfig"
+          }
+        }
+      ]
+    },
+    {
+      "name": "castVoteWithValidation",
+      "accounts": [
+        {
+          "name": "daoState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "proposal",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "voteRecord",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "voter",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "nftTokenAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "voterTokenAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "voteChoice",
+          "type": {
+            "defined": "VoteChoice"
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -143,6 +221,12 @@
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "votingConfig",
+            "type": {
+              "defined": "VotingConfig"
+            }
           }
         ]
       }
@@ -233,6 +317,46 @@
     }
   ],
   "types": [
+    {
+      "name": "VotingConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nftRequired",
+            "type": "bool"
+          },
+          {
+            "name": "nftCollection",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "nftVerifiedCollection",
+            "type": "bool"
+          },
+          {
+            "name": "tokenRequired",
+            "type": "bool"
+          },
+          {
+            "name": "tokenMint",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "minTokenAmount",
+            "type": "u64"
+          },
+          {
+            "name": "requireBoth",
+            "type": "bool"
+          }
+        ]
+      }
+    },
     {
       "name": "ProposalStatus",
       "type": {
@@ -365,6 +489,28 @@
           "index": false
         }
       ]
+    },
+    {
+      "name": "VotingConfigUpdated",
+      "fields": [
+        {
+          "name": "authority",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "config",
+          "type": {
+            "defined": "VotingConfig"
+          },
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -397,6 +543,49 @@
       "code": 6005,
       "name": "Unauthorized",
       "msg": "Unauthorized action"
+    },
+    {
+      "code": 6006,
+      "name": "NFTRequired",
+      "msg": "Must hold NFT from required collection to vote"
+    },
+    {
+      "code": 6007,
+      "name": "NotNFTOwner",
+      "msg": "Not the owner of the required NFT"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidNFT",
+      "msg": "Invalid NFT"
+    },
+    {
+      "code": 6009,
+      "name": "TokenRequired",
+      "msg": "Must hold minimum token amount to vote"
+    },
+    {
+      "code": 6010,
+      "name": "InsufficientTokenBalance",
+      "msg": "Must hold minimum token amount to vote"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidTokenAccount",
+      "msg": "Invalid token account"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidTokenMint",
+      "msg": "Invalid token mint"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidConfiguration",
+      "msg": "Invalid configuration parameters"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "HPH6itf3pTzFGReDBju8XhvQ8kgN1Wtpmd4oqXgaXKqp"
+  }
 }

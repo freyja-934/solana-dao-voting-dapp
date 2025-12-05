@@ -1,10 +1,10 @@
 import {
-  Commitment,
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction
+    Commitment,
+    Connection,
+    PublicKey,
+    SystemProgram,
+    Transaction,
+    TransactionInstruction
 } from '@solana/web3.js';
 import { COMMITMENT, PROGRAM_ID, RPC_URL } from './constants';
 
@@ -33,11 +33,22 @@ export interface ProposalAccount {
   bump: number;
 }
 
+export interface VotingConfig {
+  nftRequired: boolean;
+  nftCollection: PublicKey | null;
+  nftVerifiedCollection: boolean;
+  tokenRequired: boolean;
+  tokenMint: PublicKey | null;
+  minTokenAmount: bigint;
+  requireBoth: boolean;
+}
+
 export interface DaoStateAccount {
   authority: PublicKey;
   daoName: string;
   proposalCount: number;
   bump: number;
+  votingConfig: VotingConfig;
 }
 
 export interface VoteRecord {
@@ -54,6 +65,8 @@ const INSTRUCTION_DISCRIMINATORS = {
   createProposal: Buffer.from([132, 116, 68, 174, 216, 160, 198, 22]),
   castVote: Buffer.from([20, 212, 15, 189, 69, 180, 69, 151]),
   finalizeProposal: Buffer.from([23, 68, 51, 167, 109, 173, 187, 164]),
+  updateVotingConfig: Buffer.from([127, 86, 224, 168, 206, 186, 158, 194]),
+  castVoteWithValidation: Buffer.from([187, 174, 47, 170, 28, 119, 184, 138]),
 };
 
 export function getConnection(commitment: Commitment = COMMITMENT as Commitment): Connection {
@@ -219,6 +232,68 @@ export function finalizeProposalInstruction(
   });
 }
 
+// Create update voting config instruction
+export function createUpdateVotingConfigInstruction(
+  daoStatePda: PublicKey,
+  authority: PublicKey,
+  config: VotingConfig
+): TransactionInstruction {
+  // Serialize the config
+  const configBuffer = Buffer.alloc(1 + 1 + 33 + 1 + 1 + 33 + 8 + 1);
+  let offset = 0;
+  
+  configBuffer.writeUInt8(config.nftRequired ? 1 : 0, offset);
+  offset += 1;
+  
+  // Write Option<Pubkey> for nftCollection
+  if (config.nftCollection) {
+    configBuffer.writeUInt8(1, offset);
+    offset += 1;
+    config.nftCollection.toBuffer().copy(configBuffer, offset);
+    offset += 32;
+  } else {
+    configBuffer.writeUInt8(0, offset);
+    offset += 1;
+  }
+  
+  configBuffer.writeUInt8(config.nftVerifiedCollection ? 1 : 0, offset);
+  offset += 1;
+  
+  configBuffer.writeUInt8(config.tokenRequired ? 1 : 0, offset);
+  offset += 1;
+  
+  // Write Option<Pubkey> for tokenMint
+  if (config.tokenMint) {
+    configBuffer.writeUInt8(1, offset);
+    offset += 1;
+    config.tokenMint.toBuffer().copy(configBuffer, offset);
+    offset += 32;
+  } else {
+    configBuffer.writeUInt8(0, offset);
+    offset += 1;
+  }
+  
+  // Write minTokenAmount as u64 little-endian
+  configBuffer.writeBigUInt64LE(config.minTokenAmount, offset);
+  offset += 8;
+  
+  configBuffer.writeUInt8(config.requireBoth ? 1 : 0, offset);
+  
+  const data = Buffer.concat([
+    INSTRUCTION_DISCRIMINATORS.updateVotingConfig,
+    configBuffer.slice(0, offset + 1),
+  ]);
+
+  return new TransactionInstruction({
+    programId: PROGRAM_ID,
+    keys: [
+      { pubkey: daoStatePda, isSigner: false, isWritable: true },
+      { pubkey: authority, isSigner: true, isWritable: false },
+    ],
+    data,
+  });
+}
+
 // Helper to send and confirm transaction
 export async function sendAndConfirmTransaction(
   connection: Connection,
@@ -313,12 +388,57 @@ export async function fetchDaoState(connection: Connection): Promise<DaoStateAcc
     offset += 8;
     
     const bump = data.readUInt8(offset);
+    offset += 1;
+    
+    // Parse VotingConfig
+    const nftRequired = data.readUInt8(offset) === 1;
+    offset += 1;
+    
+    // Parse Option<Pubkey> for nftCollection
+    const hasNftCollection = data.readUInt8(offset) === 1;
+    offset += 1;
+    let nftCollection: PublicKey | null = null;
+    if (hasNftCollection) {
+      nftCollection = new PublicKey(data.slice(offset, offset + 32));
+      offset += 32;
+    }
+    
+    const nftVerifiedCollection = data.readUInt8(offset) === 1;
+    offset += 1;
+    
+    const tokenRequired = data.readUInt8(offset) === 1;
+    offset += 1;
+    
+    // Parse Option<Pubkey> for tokenMint
+    const hasTokenMint = data.readUInt8(offset) === 1;
+    offset += 1;
+    let tokenMint: PublicKey | null = null;
+    if (hasTokenMint) {
+      tokenMint = new PublicKey(data.slice(offset, offset + 32));
+      offset += 32;
+    }
+    
+    // Parse minTokenAmount (u64)
+    const minTokenView = new DataView(data.buffer, data.byteOffset + offset, 8);
+    const minTokenAmount = minTokenView.getBigUint64(0, true);
+    offset += 8;
+    
+    const requireBoth = data.readUInt8(offset) === 1;
 
     return {
       authority,
       daoName,
       proposalCount,
       bump,
+      votingConfig: {
+        nftRequired,
+        nftCollection,
+        nftVerifiedCollection,
+        tokenRequired,
+        tokenMint,
+        minTokenAmount,
+        requireBoth,
+      },
     };
   } catch (error) {
     console.error('Error fetching DAO state:', error);

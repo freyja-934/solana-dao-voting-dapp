@@ -1,6 +1,7 @@
 'use client';
 
 import { ProfileSettingsModal } from '@/components/profile/ProfileSettingsModal';
+import { VotingEligibilityBadge } from '@/components/voting/VotingEligibilityBadge';
 import { WalletButton } from '@/components/wallet/WalletButton';
 import { cn } from '@/lib/utils';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -80,6 +81,7 @@ export const Header = () => {
                 </button>
               </>
             )}
+            {publicKey && <VotingEligibilityBadge walletAddress={publicKey.toBase58()} />}
             <WalletButton />
           </nav>
 

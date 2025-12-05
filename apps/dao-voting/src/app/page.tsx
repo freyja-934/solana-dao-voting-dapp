@@ -1,18 +1,49 @@
 'use client';
 
+import { DAOConfigModal } from '@/components/dao/DAOConfigModal';
 import { CreateProposalModal } from '@/components/proposal/CreateProposalModal';
 import { ProposalCard } from '@/components/proposal/ProposalCard';
 import { ProposalCardSkeleton } from '@/components/proposal/ProposalCardSkeleton';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { VotingRequirements } from '@/components/voting/VotingRequirements';
+import { useAnchorProvider } from '@/hooks/useAnchorProvider';
 import { useProposals } from '@/hooks/useProposals';
 import { useProposalStats } from '@/hooks/useProposalStats';
+import { fetchDaoState } from '@/lib/anchor-client';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const { data: proposals, isLoading, error } = useProposals();
   const { data: stats } = useProposalStats();
+  const { connection } = useAnchorProvider();
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [isAuthority, setIsAuthority] = useState(false);
+
+  // Check if user is DAO authority
+  useEffect(() => {
+    const checkAuthority = async () => {
+      if (!publicKey || !connected) {
+        setIsAuthority(false);
+        return;
+      }
+      
+      try {
+        const daoState = await fetchDaoState(connection);
+        if (daoState) {
+          setIsAuthority(daoState.authority.equals(publicKey));
+        }
+      } catch (error) {
+        console.error('Error checking authority:', error);
+        setIsAuthority(false);
+      }
+    };
+    
+    checkAuthority();
+  }, [publicKey, connected, connection]);
 
   return (
     <div className="container mx-auto px-6 sm:px-8 lg:px-10 py-8 md:py-12 max-w-7xl">
@@ -30,6 +61,10 @@ export default function Home() {
           <CreateProposalModal />
         </section>
       )}
+
+      <section className="mb-8 md:mb-10">
+        <VotingRequirements />
+      </section>
 
       {stats && (
         <section className="mb-8 md:mb-12" aria-label="Proposal statistics">
@@ -147,6 +182,25 @@ export default function Home() {
           })()}
         </>
       )}
+
+      {/* Admin Controls */}
+      {isAuthority && (
+        <div className="fixed bottom-6 right-6">
+          <Button
+            onClick={() => setShowConfigModal(true)}
+            size="lg"
+            className="shadow-lg"
+          >
+            <Settings className="h-5 w-5 mr-2" />
+            DAO Settings
+          </Button>
+        </div>
+      )}
+
+      <DAOConfigModal 
+        open={showConfigModal} 
+        onOpenChange={setShowConfigModal}
+      />
     </div>
   );
 }
