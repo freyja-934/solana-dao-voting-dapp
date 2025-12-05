@@ -31,11 +31,18 @@
    npm run start -- --port 4000
    ```
    
-2. **Terminal 2 - Demo Docs (Port 3001)**
+2. **Prepare Demo Folder** (Optional - for clean start)
+   ```bash
+   # If you want to show from absolute scratch:
+   rm -rf docs-demo
+   mkdir docs-demo
+   ```
+   
+3. **Terminal 2 - Demo Docs (Port 3001)**
    ```bash
    cd docs-demo
-   npm install  # If not already installed
-   npm run start -- --port 3001
+   # Will be set up during the demo with Prompt 0
+   # After setup, run: npm run start -- --port 3001
    ```
 
 3. **Open Browser Tabs**
@@ -62,7 +69,15 @@ Talk about:
 
 #### Part 3: Live Documentation Creation (20 min)
 
-**For each prompt in DEMO_PROMPTS.md:**
+**Start with Setup (3 min)**
+1. **Prompt 0: Initial Docusaurus Setup**
+   - Explain: "First, we need to set up Docusaurus for our documentation"
+   - Emphasize: "Even though we have docs already, we're creating fresh ones to show the process"
+   - Copy the setup prompt from DEMO_PROMPTS.md
+   - Let Cursor initialize and configure Docusaurus
+   - Start the demo site on port 3001
+
+**For each documentation prompt:**
 
 1. **Explain what you're documenting**
    - "Now I'll document our smart contract..."
@@ -82,9 +97,10 @@ Talk about:
    - Check in browser at http://localhost:3001
 
 **Suggested Order:**
-1. Smart Contract Documentation (5 min)
-2. Frontend Architecture (5 min)
-3. Deployment Guide (4 min)
+0. Docusaurus Setup & Configuration (3 min)
+1. Smart Contract Documentation (4 min)
+2. Frontend Architecture (4 min)
+3. Deployment Guide (3 min)
 4. Testing Documentation (3 min)
 5. Operational Runbook (3 min)
 

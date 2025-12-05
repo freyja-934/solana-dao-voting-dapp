@@ -7,10 +7,57 @@ These are the detailed, information-rich prompts for the live demo. Copy and pas
 
 ---
 
+## Prompt 0: Initial Docusaurus Setup (3 minutes)
+
+```
+I need to set up Docusaurus documentation for our Solana DAO Voting Platform in the docs-demo folder.
+
+IMPORTANT: We already have documentation in docs-complete folder, but for this demo, we're creating a fresh documentation site in the docs-demo folder to show the process from scratch. This will run on port 3001 to avoid conflicts.
+
+Please perform these specific steps:
+
+1. First, check if docs-demo folder exists and has Docusaurus already initialized
+2. If Docusaurus is NOT initialized, run:
+   npx create-docusaurus@latest docs-demo classic --typescript
+3. Navigate to docs-demo folder and install mermaid support:
+   npm install @docusaurus/theme-mermaid
+4. Update docs-demo/docusaurus.config.ts with:
+   - title: "DAO Voting Platform Documentation" 
+   - tagline: "Decentralized governance on Solana"
+   - organizationName: "lazer-consulting"
+   - url: "http://localhost:3001"
+   - Add themes: ['@docusaurus/theme-mermaid']
+   - Add markdown: { mermaid: true }
+5. Create the following folder structure in docs-demo/docs/:
+   - architecture/
+   - contracts/
+   - frontend/
+   - deployment/
+   - testing/
+   - operations/
+6. Update docs-demo/sidebars.ts to include these sections
+
+Use the write tool to create files and search_replace tool to update existing configs.
+After setup, I'll run: npm run start -- --port 3001
+```
+
+### Alternative Simpler Version (if needed):
+```
+Set up Docusaurus in the docs-demo folder for our Solana DAO Voting Platform documentation. We're creating this separate from our existing docs-complete folder to demonstrate the documentation creation process. Configure it with title "DAO Voting Platform Documentation", install mermaid support for diagrams, and prepare it to run on port 3001.
+```
+
+### Speaking Points for Setup:
+- "Let's start by setting up Docusaurus for our documentation"
+- "We already have complete docs, but I'll show you how we create them from scratch"
+- "Notice how I provide the configuration details - Cursor handles the setup"
+- "This would normally be the first step in any documentation project"
+
+---
+
 ## Prompt 1: Smart Contract Overview (5 minutes)
 
 ```
-Create documentation for docs/contracts/dao-program.md with the following information:
+Using the write tool, create a new file at docs-demo/docs/contracts/dao-program.md with the following information:
 
 # DAO Program Overview
 Our DAO program is built with Anchor framework on Solana. Program ID: 7KqAtsakdPmWh1WMpokqMWKsGSNJ3S9He3kb9qtNHUaj
@@ -61,6 +108,8 @@ The program manages decentralized governance through:
 - Overflow checks on vote tallying
 
 Format this with proper markdown structure, code examples for account derivations, and make it accessible for client developers.
+
+IMPORTANT: Write this as a complete markdown file with all the information above properly formatted.
 ```
 
 ---
@@ -68,7 +117,7 @@ Format this with proper markdown structure, code examples for account derivation
 ## Prompt 2: Frontend Architecture (5 minutes)
 
 ```
-Create docs/frontend/architecture.md with this information:
+Using the write tool, create a new file at docs-demo/docs/frontend/architecture.md with this information:
 
 # Frontend Architecture
 
@@ -135,6 +184,8 @@ Three-layer approach:
 - Graceful wallet disconnection handling
 
 Transform this into clear, structured documentation with code snippets showing usage patterns.
+
+IMPORTANT: Write this as a complete markdown file with proper headings, code blocks, and all the information above.
 ```
 
 ---
@@ -142,7 +193,7 @@ Transform this into clear, structured documentation with code snippets showing u
 ## Prompt 3: Deployment Guide (4 minutes)
 
 ```
-Create docs/deployment/production-deployment.md with these specifications:
+Using the write tool, create a new file at docs-demo/docs/deployment/production-deployment.md with these specifications:
 
 # Production Deployment Guide
 
@@ -263,6 +314,8 @@ If issues occur:
 3. Database: Restore from Supabase backups
 
 Transform this into step-by-step documentation with clear commands and verification steps.
+
+IMPORTANT: Write this as a complete markdown file including all bash code blocks and instructions properly formatted.
 ```
 
 ---
@@ -270,7 +323,7 @@ Transform this into step-by-step documentation with clear commands and verificat
 ## Prompt 4: Testing Documentation (3 minutes)
 
 ```
-Create docs/testing/testing-guide.md with our testing specifications:
+Using the write tool, create a new file at docs-demo/docs/testing/testing-guide.md with our testing specifications:
 
 # Testing Guide
 
@@ -405,6 +458,8 @@ When reporting bugs, include:
 6. Screenshots
 
 Format this into comprehensive testing documentation with examples and commands.
+
+IMPORTANT: Write this as a complete markdown file with all test scenarios, code examples, and commands properly formatted.
 ```
 
 ---
@@ -412,7 +467,7 @@ Format this into comprehensive testing documentation with examples and commands.
 ## Prompt 5: Operational Runbook (3 minutes)
 
 ```
-Create docs/operations/runbook.md with these operational procedures:
+Using the write tool, create a new file at docs-demo/docs/operations/runbook.md with these operational procedures:
 
 # Operational Runbook
 
@@ -568,6 +623,54 @@ performance.getEntriesByType('navigation')[0].loadEventEnd
 - Supabase support: via dashboard
 
 Transform this into a comprehensive runbook with clear procedures and commands.
+
+IMPORTANT: Write this as a complete markdown file with all procedures, scripts, and SQL queries properly formatted in code blocks.
+```
+
+---
+
+## Prompt 6: Create Introduction and Update Sidebar (2 minutes)
+
+```
+Now let's create the main introduction page and update the sidebar configuration.
+
+1. Using the write tool, create docs-demo/docs/intro.md with:
+   - Project overview for the DAO Voting Platform
+   - Key features (on-chain governance, wallet integration, voting mechanisms)
+   - Technology stack overview
+   - Links to other documentation sections
+
+2. Update docs-demo/sidebars.ts using the search_replace tool to include all our created documentation:
+   - intro.md as the first item
+   - Categories for: Architecture, Contracts, Frontend, Deployment, Testing, Operations
+   - Each category should contain the relevant .md files we created
+
+Make sure the sidebar structure is logical and easy to navigate for client developers.
+```
+
+---
+
+## Final Verification Prompt (Optional - 1 minute)
+
+```
+Let's verify our documentation is complete and working:
+
+1. Check that all the following files exist in docs-demo/docs/:
+   - intro.md
+   - contracts/dao-program.md
+   - frontend/architecture.md
+   - deployment/production-deployment.md
+   - testing/testing-guide.md
+   - operations/runbook.md
+
+2. Verify the sidebar configuration in sidebars.ts includes all sections
+
+3. Make sure docusaurus.config.ts has:
+   - Correct title and tagline
+   - Mermaid theme enabled
+   - Proper URL configuration
+
+If any files are missing or configuration needs adjustment, please fix them now.
 ```
 
 ---
