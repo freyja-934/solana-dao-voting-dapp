@@ -1,0 +1,324 @@
+---
+id: overview
+title: System Architecture
+sidebar_label: Architecture Overview
+---
+
+import Mermaid from '@theme/Mermaid';
+
+# System Architecture Overview
+
+The DAO Voting Platform is built on a modern, scalable architecture that leverages Solana's high-performance blockchain for core governance functions while utilizing traditional web technologies for an optimal user experience.
+
+## Architecture Principles
+
+### 1. Decentralization First
+All critical governance decisions and voting records are stored on-chain, ensuring transparency and immutability. The blockchain serves as the single source of truth for:
+- DAO configuration and parameters
+- Proposal creation and metadata
+- Vote casting and tallying
+- Execution status and results
+
+### 2. Performance Optimization
+We leverage Solana's sub-second block times and parallel transaction processing to deliver real-time voting experiences. The architecture includes:
+- Optimistic UI updates for immediate feedback
+- Background data synchronization
+- Efficient caching strategies
+- Minimal RPC calls through batching
+
+### 3. User Experience
+Despite the complexity of blockchain interactions, users experience a familiar web application interface:
+- One-click wallet connections
+- Intuitive proposal creation flows
+- Real-time vote counting
+- Graceful error handling
+
+## Component Architecture
+
+<Mermaid
+  value={`
+    flowchart TB
+      subgraph "Client Layer"
+        Browser[Web Browser]
+        Wallet[Wallet Extension]
+      end
+      
+      subgraph "Frontend Application"
+        Next[Next.js App Router]
+        UI[UI Components]
+        Hooks[Custom Hooks]
+        WalletAdapter[Wallet Adapter]
+        QueryClient[React Query Client]
+      end
+      
+      subgraph "Data Layer"
+        AnchorClient[Anchor Client]
+        SupabaseClient[Supabase Client]
+        Cache[Query Cache]
+      end
+      
+      subgraph "Blockchain"
+        RPC[Solana RPC Node]
+        Program[DAO Program]
+        Accounts[Program Accounts]
+      end
+      
+      subgraph "Off-Chain"
+        Supabase[Supabase Database]
+        Auth[Authentication Service]
+      end
+      
+      Browser --> Next
+      Wallet --> WalletAdapter
+      Next --> UI
+      UI --> Hooks
+      Hooks --> QueryClient
+      QueryClient --> Cache
+      QueryClient --> AnchorClient
+      QueryClient --> SupabaseClient
+      WalletAdapter --> AnchorClient
+      AnchorClient --> RPC
+      RPC --> Program
+      Program --> Accounts
+      SupabaseClient --> Supabase
+      SupabaseClient --> Auth
+  `}
+/>
+
+## Data Flow Architecture
+
+### Proposal Creation Flow
+
+<Mermaid
+  value={`
+    sequenceDiagram
+      participant U as User
+      participant F as Frontend
+      participant W as Wallet
+      participant P as Program
+      participant D as Database
+      
+      U->>F: Create Proposal
+      F->>F: Validate Input
+      F->>W: Request Signature
+      W->>U: Approve Transaction
+      W->>P: Send Transaction
+      P->>P: Create Proposal Account
+      P-->>F: Transaction Confirmed
+      F->>D: Store Metadata
+      F->>U: Show Success
+  `}
+/>
+
+### Voting Flow
+
+<Mermaid
+  value={`
+    sequenceDiagram
+      participant U as User
+      participant F as Frontend
+      participant W as Wallet
+      participant P as Program
+      participant C as Cache
+      
+      U->>F: Cast Vote
+      F->>C: Optimistic Update
+      F->>W: Request Signature
+      W->>P: Submit Vote
+      P->>P: Record Vote
+      P->>P: Update Tallies
+      P-->>F: Confirmation
+      F->>C: Verify Update
+      F->>U: Show Results
+  `}
+/>
+
+## Technical Stack Details
+
+### Smart Contract Layer
+
+**Anchor Program (Rust)**
+- **Program ID**: `7KqAtsakdPmWh1WMpokqMWKsGSNJ3S9He3kb9qtNHUaj`
+- **Account Model**: Program Derived Addresses (PDAs)
+- **Instructions**: 
+  - `initialize_dao`: Sets up DAO with configuration
+  - `create_proposal`: Creates new governance proposal
+  - `cast_vote`: Records user vote
+  - `execute_proposal`: Finalizes voting results
+
+**Account Structure**:
+```rust
+// DAO Account (PDA)
+pub struct Dao {
+    pub admin: Pubkey,          // 32 bytes
+    pub proposal_count: u64,    // 8 bytes
+    pub min_votes: u64,          // 8 bytes
+    pub voting_period: i64,      // 8 bytes
+    pub treasury: Pubkey,        // 32 bytes
+}
+
+// Proposal Account (PDA)
+pub struct Proposal {
+    pub id: u64,                 // 8 bytes
+    pub creator: Pubkey,         // 32 bytes
+    pub title: String,           // 100 bytes max
+    pub description: String,     // 500 bytes max
+    pub votes_for: u64,          // 8 bytes
+    pub votes_against: u64,      // 8 bytes
+    pub votes_abstain: u64,      // 8 bytes
+    pub status: ProposalStatus,  // 1 byte
+    pub created_at: i64,         // 8 bytes
+    pub voting_ends_at: i64,     // 8 bytes
+}
+```
+
+### Frontend Architecture
+
+**Next.js Application Structure**:
+```
+apps/dao-voting/
+├── src/
+│   ├── app/              # App Router pages
+│   ├── components/        # React components
+│   │   ├── ui/           # Reusable primitives
+│   │   ├── proposal/     # Proposal components
+│   │   ├── voting/       # Voting components
+│   │   └── wallet/       # Wallet components
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utilities and clients
+│   └── queries/          # React Query definitions
+```
+
+**Key Technologies**:
+- **React 19**: Latest React with Server Components
+- **TypeScript 5.3**: Full type safety
+- **TailwindCSS**: Utility-first styling
+- **Radix UI**: Accessible component primitives
+- **React Query**: Server state management
+
+### Data Management
+
+**On-Chain Data**:
+- Governance parameters
+- Proposal details
+- Vote records
+- Execution status
+
+**Off-Chain Data (Supabase)**:
+- User profiles and preferences
+- Comments and discussions
+- Activity logs and analytics
+- Cached blockchain data
+
+**Caching Strategy**:
+```typescript
+// React Query Configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // 5 minutes
+      gcTime: 10 * 60 * 1000,        // 10 minutes
+      refetchOnWindowFocus: true,
+      retry: 3,
+    },
+  },
+});
+```
+
+## Security Architecture
+
+### Smart Contract Security
+- **Access Control**: Role-based permissions
+- **Input Validation**: Comprehensive parameter checking
+- **Overflow Protection**: Safe math operations
+- **Reentrancy Guards**: State checks before transfers
+- **Time Locks**: Prevent premature execution
+
+### Frontend Security
+- **Wallet Verification**: Transaction signing validation
+- **CSRF Protection**: Next.js built-in protection
+- **XSS Prevention**: React's automatic escaping
+- **Rate Limiting**: API endpoint throttling
+- **Content Security Policy**: Strict CSP headers
+
+### Data Security
+- **Row Level Security**: Supabase RLS policies
+- **JWT Authentication**: Secure session management
+- **API Key Rotation**: Regular credential updates
+- **Audit Logging**: All critical actions logged
+
+## Scalability Considerations
+
+### Horizontal Scaling
+- **RPC Load Balancing**: Multiple RPC endpoints
+- **CDN Distribution**: Static assets on edge
+- **Database Pooling**: Connection management
+- **Worker Processes**: Background job processing
+
+### Performance Metrics
+- **Page Load**: < 2 seconds
+- **Transaction Confirmation**: < 3 seconds
+- **Vote Updates**: < 500ms (optimistic)
+- **API Response**: < 200ms p95
+
+### Monitoring Points
+- Transaction success rates
+- RPC endpoint health
+- Database connection pool
+- Frontend error rates
+- User session metrics
+
+## Infrastructure Components
+
+### Production Environment
+```yaml
+Frontend:
+  - Platform: Vercel Edge Network
+  - Regions: Global CDN
+  - Scaling: Automatic
+
+Database:
+  - Provider: Supabase
+  - Type: PostgreSQL
+  - Backup: Daily automated
+
+Blockchain:
+  - Network: Solana Mainnet-Beta
+  - RPC: QuickNode / Helius
+  - Commitment: Confirmed
+
+Monitoring:
+  - APM: Vercel Analytics
+  - Errors: Sentry
+  - Logs: Supabase Logs
+```
+
+## Development Workflow
+
+### Local Development
+1. Solana Test Validator for blockchain
+2. Next.js dev server for frontend
+3. Supabase local for database
+4. Anchor test suite for contracts
+
+### CI/CD Pipeline
+1. GitHub Actions for automation
+2. Contract tests on push
+3. Frontend preview deployments
+4. Production deployment on merge
+
+## Future Architecture Enhancements
+
+### Planned Improvements
+- **WebSocket Subscriptions**: Real-time blockchain events
+- **IPFS Integration**: Decentralized proposal storage
+- **Multi-Chain Support**: Cross-chain governance
+- **Advanced Analytics**: Detailed voting patterns
+- **Mobile Applications**: Native iOS/Android apps
+
+### Scaling Roadmap
+- Implement proposal categorization
+- Add delegation mechanisms
+- Enable treasury management
+- Support multiple voting strategies
+- Integrate with other DAOs
